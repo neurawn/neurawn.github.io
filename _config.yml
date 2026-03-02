@@ -6,11 +6,12 @@
 # `jekyll serve`. If you change this file, please restart the server process.
 
 # Site Settings
+encoding                 : "utf-8"
 locale                   : "en-US"
 title                    : "Alex Nguyen"
 title_separator          : "-"
 name                     : &name "Alex Nguyen"
-description              : &description "Alex Nguyen — building things at the edge of brain and code"
+description              : &description "Alex Nguyen - building things at the edge of brain and code"
 url                      : https://neurawn.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "neurawn/neurawn.github.io"
