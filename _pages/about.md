@@ -8,9 +8,9 @@ redirect_from:
   - /about.html
 ---
 
-Hi! This is where you would see my Prefontal Cortex or Hippocampus. How the brain stores and replays memories, how we understand things. 
+Hi! This is where you would see my Prefontal Cortex and Hippocampus laid out in writing form - how the brain stores and replays memories, how we understand things. 
 
-Additionallym maybe some free will, running. LetsRun and LessWrong, this site is a place to collect projects, occasional writing, and whatever I feel like putting on the internet.
+Additionally maybe some free will, running, intersection between LetsRun and LessWrong; this site is a place to collect projects, occasional writing, and whatever I feel like putting on the internet.
 
 ---
 
@@ -23,7 +23,7 @@ Additionallym maybe some free will, running. LetsRun and LessWrong, this site is
 
 **Interests**
 - Computational neuroscience.
-- Running, cooking, and reading books I never finish
+- Running, running, running, running from the physiological side of things, running from the psychological side of things, running from a lot of sides of things.
 
 ---
 
