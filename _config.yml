@@ -10,7 +10,7 @@ locale                   : "en-US"
 title                    : "Alex Nguyen"
 title_separator          : "-"
 name                     : &name "Alex Nguyen"
-description              : &description "Alex Nguyen — building things at the edge of brain and code"
+description              : &description "Alex Nguyen"
 url                      : https://neurawn.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "neurawn/neurawn.github.io"
@@ -82,12 +82,12 @@ analytics:
 author:
   name             : "Alex Nguyen"
   avatar           : "profile.png"
-  bio              : "PhD student. I like understanding things — brains, systems, and why software is always somebody else's fault."
-  location         : "San Francisco, CA"
-  employer         : "University of California, San Francisco"
-  pubmed           : "https://www.ncbi.nlm.nih.gov/pubmed/?term=alex+nguyen+neuroscience"
+  bio              : "Brains, Memories, systems, running, and why it is never my or somebody else's fault."
+  location         : "New York City"
+  employer         : ""
+  pubmed           : ""
   googlescholar    : # Add your Google Scholar URL here
-  email            : "alex.nguyen@ucsf.edu"
+  email            : ""
   researchgate     : # example: "https://www.researchgate.net/profile/yourprofile"
   uri              :
   bitbucket        :
