@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Midterm Study Schedule – Mar 27</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f4f1fb; color: #1a1a2e;
+      padding: 32px 16px 60px;
+    }
+    .header {
+      background: linear-gradient(135deg, #57068c, #8b2fc9);
+      color: white; border-radius: 16px;
+      padding: 32px 36px; margin-bottom: 32px;
+      max-width: 900px; margin-left: auto; margin-right: auto;
+    }
+    .header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .header .sub { font-size: 1rem; opacity: .88; line-height: 1.6; }
+    .badge {
+      display: inline-block; background: rgba(255,255,255,.2);
+      border-radius: 8px; padding: 4px 12px; font-size: .85rem;
+      margin-top: 12px; margin-right: 8px;
+    }
+    .days { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .day-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(87,6,140,.08); overflow: hidden; }
+    .day-header { display: flex; align-items: center; padding: 18px 24px; gap: 16px; border-bottom: 1px solid #f0eaf8; }
+    .day-circle {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-weight: 800; flex-shrink: 0; font-size: .75rem;
+    }
+    .day-circle .dow { font-size: .63rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .day-circle .num { font-size: 1.3rem; font-weight: 800; line-height: 1; }
+    .day-title { flex: 1; }
+    .day-title h2 { font-size: 1.1rem; font-weight: 700; }
+    .day-title .focus { font-size: .83rem; color: #7a5fa0; margin-top: 2px; }
+    .day-progress { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .day-progress .pct { font-size: .75rem; font-weight: 700; color: #57068c; }
+    .progress-bar-track { width: 80px; height: 6px; background: #e4d9f5; border-radius: 99px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: #57068c; border-radius: 99px; width: 0%; transition: width .3s ease; }
+
+    .day-body { padding: 20px 24px; }
+    .lecture-block { margin-bottom: 20px; }
+    .lecture-block:last-child { margin-bottom: 0; }
+    .lecture-meta { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .lecture-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #57068c; flex-shrink: 0; }
+    .lecture-title { font-weight: 700; font-size: .97rem; }
+
+    /* ── Topic list ── */
+    .topics { display: flex; flex-direction: column; gap: 4px; }
+
+    /* Section header rows — no checkbox, bold label */
+    .section-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px 4px;
+      font-size: .82rem; font-weight: 700; color: #2d1a4a;
+      border-bottom: 1px solid #ede4fb;
+      margin-top: 8px; margin-bottom: 2px;
+      letter-spacing: .01em;
+    }
+    .section-row:first-child { margin-top: 0; }
+    .section-row .section-icon { font-size: .7rem; opacity: .55; }
+
+    /* Checkable topic rows */
+    .topic-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 5px 10px; border-radius: 8px;
+      background: #f9f6ff; transition: background .15s; min-height: 34px;
+    }
+    .topic-row:hover { background: #f0eafa; }
+    .topic-row.done { background: #f0fdf7; }
+
+    /* Indented sub-items */
+    .topic-row.sub { margin-left: 20px; background: #faf7ff; }
+    .topic-row.sub:hover { background: #ede5fa; }
+    .topic-row.sub.done { background: #f0fdf7; }
+
+    .topic-check { display: flex; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; }
+    .topic-check input[type="checkbox"] { width: 14px; height: 14px; accent-color: #57068c; cursor: pointer; flex-shrink: 0; }
+    .topic-check .topic-label { font-size: .81rem; font-weight: 500; color: #2d1a4a; cursor: pointer; user-select: none; }
+    .topic-row.done .topic-label { text-decoration: line-through; text-decoration-color: #6ee7b7; color: #6b7280; }
+    .topic-row.done input[type="checkbox"] { accent-color: #047857; }
+
+    .topic-spacer { flex: 1; border-bottom: 1px dotted #e0d5f5; margin: 0 4px; }
+    .topic-row.done .topic-spacer { border-color: #bbf7d0; }
+
+    .topic-notes {
+      display: flex; align-items: center; gap: 4px;
+      background: #f0eafa; border: 1.5px solid #ddd0f5;
+      border-radius: 6px; padding: 3px 8px; flex-shrink: 0;
+      width: 190px; transition: border-color .2s, background .2s;
+    }
+    .topic-notes:focus-within { border-color: #8b2fc9; background: #e8dafa; }
+    .topic-notes.has-link { border-color: #a78bfa; background: #ede9fe; }
+    .topic-notes .note-icon { font-size: .7rem; opacity: .55; flex-shrink: 0; }
+    .topic-notes input {
+      border: none; background: transparent; font-size: .71rem;
+      color: #4a2080; outline: none; width: 100%; font-family: inherit;
+    }
+    .topic-notes input::placeholder { color: #c4b0e8; }
+    .topic-notes .open-btn {
+      font-size: .75rem; color: #7c3aed; text-decoration: none;
+      flex-shrink: 0; opacity: 0; transition: opacity .15s; line-height: 1;
+    }
+    .topic-notes:focus-within .open-btn,
+    .topic-notes.has-link .open-btn { opacity: 1; }
+
+    .tip-box {
+      background: #fdf8ff; border-left: 4px solid #57068c;
+      border-radius: 0 8px 8px 0; padding: 10px 14px;
+      margin-top: 14px; font-size: .82rem; color: #4a2080; line-height: 1.55;
+    }
+    .tip-box strong { color: #57068c; }
+    .divider { border: none; border-top: 1px dashed #e4d9f5; margin: 18px 0; }
+
+    /* ── Day accent colors ── */
+    .d1 .day-circle{background:#eee5fa;color:#57068c} .d1 .day-header{background:#faf7ff}
+    .d1 .day-progress .pct{color:#57068c} .d1 .progress-bar-fill{background:#57068c} .d1 .progress-bar-track{background:#e4d9f5}
+
+    .d2 .day-circle{background:#e8f0fe;color:#1a56db} .d2 .day-header{background:#f7f9ff}
+    .d2 .lecture-label{color:#1a56db}
+    .d2 .section-row{color:#1e3a8a;border-color:#c7d7fb}
+    .d2 .topic-row{background:#f0f4fe} .d2 .topic-row:hover{background:#e4ecfd} .d2 .topic-row.done{background:#f0fdf7}
+    .d2 .topic-row.sub{background:#f5f8fe} .d2 .topic-row.sub:hover{background:#dde7fd}
+    .d2 .topic-check input[type="checkbox"]{accent-color:#1a56db} .d2 .topic-check .topic-label{color:#1e3a8a}
+    .d2 .topic-spacer{border-color:#c7d7fb}
+    .d2 .topic-notes{background:#e8effd;border-color:#c7d7fb} .d2 .topic-notes:focus-within{border-color:#1a56db;background:#dde7fc}
+    .d2 .topic-notes.has-link{border-color:#93aee8;background:#dde7fc}
+    .d2 .topic-notes input{color:#1e3a8a} .d2 .topic-notes input::placeholder{color:#93aee8}
+    .d2 .topic-notes .open-btn{color:#1a56db}
+    .d2 .tip-box{border-color:#1a56db;color:#1e3a8a;background:#f5f7ff} .d2 .tip-box strong{color:#1a56db}
+    .d2 .day-progress .pct{color:#1a56db} .d2 .progress-bar-fill{background:#1a56db} .d2 .progress-bar-track{background:#d4e0fb}
+
+    .d3 .day-circle{background:#fce8f3;color:#c0135a} .d3 .day-header{background:#fff7fb}
+    .d3 .lecture-label{color:#c0135a}
+    .d3 .section-row{color:#831843;border-color:#f5c2e0}
+    .d3 .topic-row{background:#fef4fb} .d3 .topic-row:hover{background:#fdeaf6} .d3 .topic-row.done{background:#f0fdf7}
+    .d3 .topic-row.sub{background:#fff0fa} .d3 .topic-row.sub:hover{background:#fbd9ef}
+    .d3 .topic-check input[type="checkbox"]{accent-color:#c0135a} .d3 .topic-check .topic-label{color:#831843}
+    .d3 .topic-spacer{border-color:#f5c2e0}
+    .d3 .topic-notes{background:#fdeaf6;border-color:#f5c2e0} .d3 .topic-notes:focus-within{border-color:#c0135a;background:#fbd9ef}
+    .d3 .topic-notes.has-link{border-color:#e09dc3;background:#fbd9ef}
+    .d3 .topic-notes input{color:#831843} .d3 .topic-notes input::placeholder{color:#e09dc3}
+    .d3 .topic-notes .open-btn{color:#c0135a}
+    .d3 .tip-box{border-color:#c0135a;color:#831843;background:#fff5fa} .d3 .tip-box strong{color:#c0135a}
+    .d3 .day-progress .pct{color:#c0135a} .d3 .progress-bar-fill{background:#c0135a} .d3 .progress-bar-track{background:#f9d0e6}
+
+    .d4 .day-circle{background:#e6faf5;color:#047857} .d4 .day-header{background:#f5fdf9}
+    .d4 .lecture-label{color:#047857}
+    .d4 .section-row{color:#064e3b;border-color:#a7f3d0}
+    .d4 .topic-row{background:#f0fdf8} .d4 .topic-row:hover{background:#d1fae5} .d4 .topic-row.done{background:#f0fdf7}
+    .d4 .topic-row.sub{background:#f5fefb} .d4 .topic-row.sub:hover{background:#bbf7d0}
+    .d4 .topic-check input[type="checkbox"]{accent-color:#047857} .d4 .topic-check .topic-label{color:#064e3b}
+    .d4 .topic-spacer{border-color:#a7f3d0}
+    .d4 .topic-notes{background:#dcfce7;border-color:#a7f3d0} .d4 .topic-notes:focus-within{border-color:#047857;background:#bbf7d0}
+    .d4 .topic-notes.has-link{border-color:#6ee7b7;background:#bbf7d0}
+    .d4 .topic-notes input{color:#064e3b} .d4 .topic-notes input::placeholder{color:#6ee7b7}
+    .d4 .topic-notes .open-btn{color:#047857}
+    .d4 .tip-box{border-color:#047857;color:#064e3b;background:#f0fdf8} .d4 .tip-box strong{color:#047857}
+    .d4 .day-progress .pct{color:#047857} .d4 .progress-bar-fill{background:#047857} .d4 .progress-bar-track{background:#bbf7d0}
+
+    .d5 .day-circle{background:#fff3e0;color:#d97706} .d5 .day-header{background:#fffdf5}
+    .d5 .lecture-label{color:#d97706}
+    .d5 .section-row{color:#92400e;border-color:#fde68a}
+    .d5 .topic-row{background:#fffbf0} .d5 .topic-row:hover{background:#fef3c7} .d5 .topic-row.done{background:#f0fdf7}
+    .d5 .topic-row.sub{background:#fffdf5} .d5 .topic-row.sub:hover{background:#fef3c7}
+    .d5 .topic-check input[type="checkbox"]{accent-color:#d97706} .d5 .topic-check .topic-label{color:#92400e}
+    .d5 .topic-spacer{border-color:#fde68a}
+    .d5 .topic-notes{background:#fef9ec;border-color:#fde68a} .d5 .topic-notes:focus-within{border-color:#d97706;background:#fef3c7}
+    .d5 .topic-notes.has-link{border-color:#fbbf24;background:#fef3c7}
+    .d5 .topic-notes input{color:#92400e} .d5 .topic-notes input::placeholder{color:#fbbf24}
+    .d5 .topic-notes .open-btn{color:#d97706}
+    .d5 .tip-box{border-color:#d97706;color:#92400e;background:#fffbec} .d5 .tip-box strong{color:#d97706}
+    .d5 .day-progress .pct{color:#d97706} .d5 .progress-bar-fill{background:#d97706} .d5 .progress-bar-track{background:#fde68a}
+
+    .exam-card {
+      background: linear-gradient(135deg,#57068c,#8b2fc9); color: white;
+      border-radius: 14px; padding: 24px 28px;
+      box-shadow: 0 4px 20px rgba(87,6,140,.25);
+    }
+    .exam-card h2{font-size:1.3rem;font-weight:800;margin-bottom:6px}
+    .exam-card .time{font-size:1rem;opacity:.9;margin-bottom:14px}
+    .exam-reminders{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .exam-reminder{background:rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;font-size:.82rem}
+    .checklist{list-style:none;margin-top:10px}
+    .checklist li{padding:5px 0;font-size:.9rem;opacity:.92}
+    .checklist li::before{content:"✓ ";font-weight:700}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📚 Midterm Study Schedule</h1>
+  <div class="sub">NYU · Efficient DNN & ML Systems · Spring 2026<br>5 focused days to exam-day confidence</div>
+  <span class="badge">📅 Mar 22–26 Study Days</span>
+  <span class="badge">🎯 Exam: Fri Mar 27 · 5:10–6:30pm</span>
+  <span class="badge">📝 5 Questions · Closed Book</span>
+</div>
+
+<div class="days">
+
+<!-- ══════════════════════ DAY 1 ══════════════════════ -->
+<div class="day-card d1">
+  <div class="day-header">
+    <div class="day-circle"><span class="dow">Sun</span><span class="num">22</span></div>
+    <div class="day-title"><h2>Day 1 — Foundations</h2><div class="focus">Neural Network Basics + Convolutional Networks</div></div>
+    <div class="day-progress"><span class="pct">0%</span><div class="progress-bar-track"><div class="progress-bar-fill"></div></div></div>
+  </div>
+  <div class="day-body">
+
+    <!-- Lecture 1 -->
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Lecture 1 · P65–P98</div>
+        <div class="lecture-title">Neural Network Basics</div>
+      </div>
+      <div class="topics">
+        <div class="section-row"><span class="section-icon">▸</span>Neural Network Basics</div>
+        <div class="topic-row sub" id="r-mlp"><label class="topic-check"><input type="checkbox" onchange="tick('r-mlp',this)"/><span class="topic-label">MLP</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-mlp"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-mlp','l-mlp')"/><a class="open-btn" id="l-mlp" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-fwdback"><label class="topic-check"><input type="checkbox" onchange="tick('r-fwdback',this)"/><span class="topic-label">Forward and backward propagation of MLP</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-fwdback"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-fwdback','l-fwdback')"/><a class="open-btn" id="l-fwdback" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-wdrop"><label class="topic-check"><input type="checkbox" onchange="tick('r-wdrop',this)"/><span class="topic-label">Weight decay, dropout</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-wdrop"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-wdrop','l-wdrop')"/><a class="open-btn" id="l-wdrop" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-opt"><label class="topic-check"><input type="checkbox" onchange="tick('r-opt',this)"/><span class="topic-label">Training optimizers: SGD, RMSProp, Adam</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-opt"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-opt','l-opt')"/><a class="open-btn" id="l-opt" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-lrs"><label class="topic-check"><input type="checkbox" onchange="tick('r-lrs',this)"/><span class="topic-label">Multistage learning rate scheduler</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-lrs"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-lrs','l-lrs')"/><a class="open-btn" id="l-lrs" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-init"><label class="topic-check"><input type="checkbox" onchange="tick('r-init',this)"/><span class="topic-label">Initialization</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-init"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-init','l-init')"/><a class="open-btn" id="l-init" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Lecture 2 -->
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Lecture 2 · P1–P69, P75–P78</div>
+        <div class="lecture-title">Convolutional Networks</div>
+      </div>
+      <div class="topics">
+        <div class="section-row"><span class="section-icon">▸</span>Conv2D operation</div>
+        <div class="topic-row sub" id="r-conv-how"><label class="topic-check"><input type="checkbox" onchange="tick('r-conv-how',this)"/><span class="topic-label">How the computation is performed</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-conv-how"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-conv-how','l-conv-how')"/><a class="open-btn" id="l-conv-how" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-conv-dims"><label class="topic-check"><input type="checkbox" onchange="tick('r-conv-dims',this)"/><span class="topic-label">Input dimension, weight dimension, output dimension</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-conv-dims"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-conv-dims','l-conv-dims')"/><a class="open-btn" id="l-conv-dims" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-conv-cost"><label class="topic-check"><input type="checkbox" onchange="tick('r-conv-cost',this)"/><span class="topic-label">Computational cost (MACs)</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-conv-cost"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-conv-cost','l-conv-cost')"/><a class="open-btn" id="l-conv-cost" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>BatchNorm</div>
+        <div class="topic-row sub" id="r-bn-fold"><label class="topic-check"><input type="checkbox" onchange="tick('r-bn-fold',this)"/><span class="topic-label">Parameter folding-in during inference</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-bn-fold"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-bn-fold','l-bn-fold')"/><a class="open-btn" id="l-bn-fold" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>ResNet, MobileNet, ShuffleNet, SqueezeNet, DenseNet</div>
+        <div class="topic-row sub" id="r-dw"><label class="topic-check"><input type="checkbox" onchange="tick('r-dw',this)"/><span class="topic-label">Depthwise Separable Conv</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-dw"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-dw','l-dw')"/><a class="open-btn" id="l-dw" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-gw"><label class="topic-check"><input type="checkbox" onchange="tick('r-gw',this)"/><span class="topic-label">Groupwise Convolution</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-gw"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-gw','l-gw')"/><a class="open-btn" id="l-gw" href="#" target="_blank">↗</a></div></div>
+
+        <div class="topic-row" id="r-seg"><label class="topic-check"><input type="checkbox" onchange="tick('r-seg',this)"/><span class="topic-label">Other tasks: segmentation</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-seg"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-seg','l-seg')"/><a class="open-btn" id="l-seg" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+
+    <div class="tip-box"><strong>💡 Focus tip:</strong> The example question on slide 38 is pure Lecture 2 — practice MACs for standard Conv2D (B×M×K×K×C×E×F) and depthwise sep. conv (K×K×C×E×F + M×C×E×F). Know how BN folds in at inference, and why groupwise divides by G.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ DAY 2 ══════════════════════ -->
+<div class="day-card d2">
+  <div class="day-header">
+    <div class="day-circle"><span class="dow">Mon</span><span class="num">23</span></div>
+    <div class="day-title"><h2>Day 2 — Transformers &amp; LLMs</h2><div class="focus">Self-Attention, Vision Transformers, KV Cache, SSL</div></div>
+    <div class="day-progress"><span class="pct">0%</span><div class="progress-bar-track"><div class="progress-bar-fill"></div></div></div>
+  </div>
+  <div class="day-body">
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Lecture 3 · P1–P69, P75–P78</div>
+        <div class="lecture-title">Transformers, ViT, LLMs &amp; SSL</div>
+      </div>
+      <div class="topics">
+        <div class="section-row"><span class="section-icon">▸</span>Transformers</div>
+        <div class="topic-row sub" id="r-tf-comp"><label class="topic-check"><input type="checkbox" onchange="tick('r-tf-comp',this)"/><span class="topic-label">How the computation is performed and why</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-tf-comp"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-tf-comp','l-tf-comp')"/><a class="open-btn" id="l-tf-comp" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-tf-mha"><label class="topic-check"><input type="checkbox" onchange="tick('r-tf-mha',this)"/><span class="topic-label">Multi-headed attention, FFN</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-tf-mha"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-tf-mha','l-tf-mha')"/><a class="open-btn" id="l-tf-mha" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-tf-norm"><label class="topic-check"><input type="checkbox" onchange="tick('r-tf-norm',this)"/><span class="topic-label">LayerNorm, RMSNorm, GeLU</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-tf-norm"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-tf-norm','l-tf-norm')"/><a class="open-btn" id="l-tf-norm" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-tf-emb"><label class="topic-check"><input type="checkbox" onchange="tick('r-tf-emb',this)"/><span class="topic-label">Positional embedding, Word embedding</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-tf-emb"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-tf-emb','l-tf-emb')"/><a class="open-btn" id="l-tf-emb" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>Vision Transformer</div>
+        <div class="topic-row sub" id="r-vit"><label class="topic-check"><input type="checkbox" onchange="tick('r-vit',this)"/><span class="topic-label">How to convert image into visual tokens</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-vit"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-vit','l-vit')"/><a class="open-btn" id="l-vit" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>LLM</div>
+        <div class="topic-row sub" id="r-llm-stages"><label class="topic-check"><input type="checkbox" onchange="tick('r-llm-stages',this)"/><span class="topic-label">Prefilling, decoding</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-llm-stages"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-llm-stages','l-llm-stages')"/><a class="open-btn" id="l-llm-stages" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-kv"><label class="topic-check"><input type="checkbox" onchange="tick('r-kv',this)"/><span class="topic-label">KV cache</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-kv"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-kv','l-kv')"/><a class="open-btn" id="l-kv" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>SSL</div>
+        <div class="topic-row sub" id="r-ssl"><label class="topic-check"><input type="checkbox" onchange="tick('r-ssl',this)"/><span class="topic-label">Basics</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-ssl"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-ssl','l-ssl')"/><a class="open-btn" id="l-ssl" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+    <div class="tip-box"><strong>💡 Focus tip:</strong> Trace the self-attention dimension flow from memory: (B,L,E) → Q/K/V → QKᵀ (B,L,L) → softmax → ×V → (B,L,E). Know exactly why KV cache eliminates recomputation during decoding, and how ViT splits 224×224 into 196 patch tokens + 1 class token.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ DAY 3 ══════════════════════ -->
+<div class="day-card d3">
+  <div class="day-header">
+    <div class="day-circle"><span class="dow">Tue</span><span class="num">24</span></div>
+    <div class="day-title"><h2>Day 3 — Pruning &amp; Quantization</h2><div class="focus">Sparse encoding, pruning strategies, number formats &amp; STE</div></div>
+    <div class="day-progress"><span class="pct">0%</span><div class="progress-bar-track"><div class="progress-bar-fill"></div></div></div>
+  </div>
+  <div class="day-body">
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Lecture 4 · P1–P65, P68–P75</div>
+        <div class="lecture-title">Pruning</div>
+      </div>
+      <div class="topics">
+        <div class="section-row"><span class="section-icon">▸</span>Computational cost saving with pruning</div>
+        <div class="topic-row sub" id="r-pcost"><label class="topic-check"><input type="checkbox" onchange="tick('r-pcost',this)"/><span class="topic-label">CNN &amp; Transformer</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-pcost"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-pcost','l-pcost')"/><a class="open-btn" id="l-pcost" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>Sparse matrix encoding</div>
+        <div class="topic-row sub" id="r-sparse"><label class="topic-check"><input type="checkbox" onchange="tick('r-sparse',this)"/><span class="topic-label">Bitmap, Run-length encoding, COO</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-sparse"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-sparse','l-sparse')"/><a class="open-btn" id="l-sparse" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>General pruning techniques</div>
+        <div class="topic-row sub" id="r-mag"><label class="topic-check"><input type="checkbox" onchange="tick('r-mag',this)"/><span class="topic-label">Magnitude pruning, gradient-based, Hessian-based pruning</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-mag"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-mag','l-mag')"/><a class="open-btn" id="l-mag" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-lasso"><label class="topic-check"><input type="checkbox" onchange="tick('r-lasso',this)"/><span class="topic-label">Lasso</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-lasso"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-lasso','l-lasso')"/><a class="open-btn" id="l-lasso" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-ptax"><label class="topic-check"><input type="checkbox" onchange="tick('r-ptax',this)"/><span class="topic-label">Taxonomy of Pruning</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-ptax"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-ptax','l-ptax')"/><a class="open-btn" id="l-ptax" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-ns"><label class="topic-check"><input type="checkbox" onchange="tick('r-ns',this)"/><span class="topic-label">Network Slimming, N:M sparsity</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-ns"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-ns','l-ns')"/><a class="open-btn" id="l-ns" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-cascade"><label class="topic-check"><input type="checkbox" onchange="tick('r-cascade',this)"/><span class="topic-label">Cascade effect of pruning</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-cascade"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-cascade','l-cascade')"/><a class="open-btn" id="l-cascade" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>Transformer pruning</div>
+        <div class="topic-row sub" id="r-tokp"><label class="topic-check"><input type="checkbox" onchange="tick('r-tokp',this)"/><span class="topic-label">Token pruning</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-tokp"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-tokp','l-tokp')"/><a class="open-btn" id="l-tokp" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-headp"><label class="topic-check"><input type="checkbox" onchange="tick('r-headp',this)"/><span class="topic-label">Head pruning</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-headp"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-headp','l-headp')"/><a class="open-btn" id="l-headp" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Lecture 5 · P1–P70</div>
+        <div class="lecture-title">Quantization</div>
+      </div>
+      <div class="topics">
+        <div class="section-row"><span class="section-icon">▸</span>Basic Data Formats</div>
+        <div class="topic-row sub" id="r-fmts"><label class="topic-check"><input type="checkbox" onchange="tick('r-fmts',this)"/><span class="topic-label">Fixed point (INT), Floating point (FP), Block floating point (BFP)</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-fmts"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-fmts','l-fmts')"/><a class="open-btn" id="l-fmts" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>Quantization</div>
+        <div class="topic-row sub" id="r-sym"><label class="topic-check"><input type="checkbox" onchange="tick('r-sym',this)"/><span class="topic-label">Unsymmetrical &amp; Symmetrical</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-sym"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-sym','l-sym')"/><a class="open-btn" id="l-sym" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-whysave"><label class="topic-check"><input type="checkbox" onchange="tick('r-whysave',this)"/><span class="topic-label">Why fixed, FP, BFP &amp; logarithm quantization can save computation</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-whysave"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-whysave','l-whysave')"/><a class="open-btn" id="l-whysave" href="#" target="_blank">↗</a></div></div>
+
+        <div class="topic-row" id="r-ste"><label class="topic-check"><input type="checkbox" onchange="tick('r-ste',this)"/><span class="topic-label">STE (Straight-Through Estimator)</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-ste"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-ste','l-ste')"/><a class="open-btn" id="l-ste" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-qtax"><label class="topic-check"><input type="checkbox" onchange="tick('r-qtax',this)"/><span class="topic-label">Taxonomy of Quantization (PTQ vs QAT)</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-qtax"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-qtax','l-qtax')"/><a class="open-btn" id="l-qtax" href="#" target="_blank">↗</a></div></div>
+
+        <div class="section-row"><span class="section-icon">▸</span>Quantization during training</div>
+        <div class="topic-row sub" id="r-stoch"><label class="topic-check"><input type="checkbox" onchange="tick('r-stoch',this)"/><span class="topic-label">Stochastic quantization</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-stoch"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-stoch','l-stoch')"/><a class="open-btn" id="l-stoch" href="#" target="_blank">↗</a></div></div>
+
+        <div class="topic-row" id="r-learnq"><label class="topic-check"><input type="checkbox" onchange="tick('r-learnq',this)"/><span class="topic-label">Learnable adaptive quantization scheme</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-learnq"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-learnq','l-learnq')"/><a class="open-btn" id="l-learnq" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+
+    <div class="tip-box"><strong>💡 Focus tip:</strong> Practice fixed-point steps cold: set clipping range → scale s = 2L/(2ᵇ−2) → clip → round → rescale. Know why STE sets ∂W'/∂W = 1 (staircase derivative is zero almost everywhere). Know PTQ vs QAT trade-offs for LLMs.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ DAY 4 ══════════════════════ -->
+<div class="day-card d4">
+  <div class="day-header">
+    <div class="day-circle"><span class="dow">Wed</span><span class="num">25</span></div>
+    <div class="day-title"><h2>Day 4 — Distillation, NAS &amp; LLM Optimization</h2><div class="focus">Knowledge distillation, low-rank, outliers, smoothing</div></div>
+    <div class="day-progress"><span class="pct">0%</span><div class="progress-bar-track"><div class="progress-bar-fill"></div></div></div>
+  </div>
+  <div class="day-body">
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Lecture 6 · P1–P32, P50–P60, P63–P68</div>
+        <div class="lecture-title">Distillation, NAS &amp; Low-Rank</div>
+      </div>
+      <div class="topics">
+        <div class="section-row"><span class="section-icon">▸</span>Distillation</div>
+        <div class="topic-row sub" id="r-kd-feat"><label class="topic-check"><input type="checkbox" onchange="tick('r-kd-feat',this)"/><span class="topic-label">Feature-Based Knowledge Distillation</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-kd-feat"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-kd-feat','l-kd-feat')"/><a class="open-btn" id="l-kd-feat" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-kd-on"><label class="topic-check"><input type="checkbox" onchange="tick('r-kd-on',this)"/><span class="topic-label">Online distillation</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-kd-on"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-kd-on','l-kd-on')"/><a class="open-btn" id="l-kd-on" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-kd-self"><label class="topic-check"><input type="checkbox" onchange="tick('r-kd-self',this)"/><span class="topic-label">Self distillation</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-kd-self"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-kd-self','l-kd-self')"/><a class="open-btn" id="l-kd-self" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-kd-multi"><label class="topic-check"><input type="checkbox" onchange="tick('r-kd-multi',this)"/><span class="topic-label">Multi-teacher, multi-student, cross-modal</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-kd-multi"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-kd-multi','l-kd-multi')"/><a class="open-btn" id="l-kd-multi" href="#" target="_blank">↗</a></div></div>
+
+        <div class="topic-row" id="r-ofa"><label class="topic-check"><input type="checkbox" onchange="tick('r-ofa',this)"/><span class="topic-label">Once-for-all NAS</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-ofa"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-ofa','l-ofa')"/><a class="open-btn" id="l-ofa" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-svd"><label class="topic-check"><input type="checkbox" onchange="tick('r-svd',this)"/><span class="topic-label">Low-rank Decomposition (SVD)</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-svd"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-svd','l-svd')"/><a class="open-btn" id="l-svd" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-dyn"><label class="topic-check"><input type="checkbox" onchange="tick('r-dyn',this)"/><span class="topic-label">Dynamic / Conditional Computing</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-dyn"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-dyn','l-dyn')"/><a class="open-btn" id="l-dyn" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Lecture 7 · P1–P41, P53–P68</div>
+        <div class="lecture-title">LLM-Specific Optimization</div>
+      </div>
+      <div class="topics">
+        <div class="section-row"><span class="section-icon">▸</span>Outlier Distribution in LLM</div>
+        <div class="topic-row sub" id="r-mass"><label class="topic-check"><input type="checkbox" onchange="tick('r-mass',this)"/><span class="topic-label">Massive activation</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-mass"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-mass','l-mass')"/><a class="open-btn" id="l-mass" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-chan"><label class="topic-check"><input type="checkbox" onchange="tick('r-chan',this)"/><span class="topic-label">Channelwise outlier</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-chan"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-chan','l-chan')"/><a class="open-btn" id="l-chan" href="#" target="_blank">↗</a></div></div>
+
+        <div class="topic-row" id="r-smooth"><label class="topic-check"><input type="checkbox" onchange="tick('r-smooth',this)"/><span class="topic-label">Quantization and smoothing techniques for large models</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-smooth"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-smooth','l-smooth')"/><a class="open-btn" id="l-smooth" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-llmp"><label class="topic-check"><input type="checkbox" onchange="tick('r-llmp',this)"/><span class="topic-label">LLM Pruning</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-llmp"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-llmp','l-llmp')"/><a class="open-btn" id="l-llmp" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-llmr"><label class="topic-check"><input type="checkbox" onchange="tick('r-llmr',this)"/><span class="topic-label">Low-rank decomposition for LLM</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-llmr"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-llmr','l-llmr')"/><a class="open-btn" id="l-llmr" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+
+    <div class="tip-box"><strong>💡 Focus tip:</strong> For distillation: Total Loss = c·CE(hard) + (1−c)·KL(soft), c ≈ 0.9. For SVD: W (m×n) → W₁(m×r)×W₂(r×n), params: mn → r(m+n). Know why massive activations spike at fixed positions across layers and why that destroys INT8 quantization.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ DAY 5 ══════════════════════ -->
+<div class="day-card d5">
+  <div class="day-header">
+    <div class="day-circle"><span class="dow">Thu</span><span class="num">26</span></div>
+    <div class="day-title"><h2>Day 5 — Efficient Training + Full Review</h2><div class="focus">Last lecture + tying everything together with practice</div></div>
+    <div class="day-progress"><span class="pct">0%</span><div class="progress-bar-track"><div class="progress-bar-fill"></div></div></div>
+  </div>
+  <div class="day-body">
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Lecture 8 · P1–P50 (Morning)</div>
+        <div class="lecture-title">Efficient Training of DNNs</div>
+      </div>
+      <div class="topics">
+        <div class="section-row"><span class="section-icon">▸</span>Efficient training of DNNs</div>
+        <div class="topic-row sub" id="r-effcomp"><label class="topic-check"><input type="checkbox" onchange="tick('r-effcomp',this)"/><span class="topic-label">Efficient computing</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-effcomp"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-effcomp','l-effcomp')"/><a class="open-btn" id="l-effcomp" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row sub" id="r-effstor"><label class="topic-check"><input type="checkbox" onchange="tick('r-effstor',this)"/><span class="topic-label">Efficient storage</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-effstor"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-effstor','l-effstor')"/><a class="open-btn" id="l-effstor" href="#" target="_blank">↗</a></div></div>
+
+        <div class="topic-row" id="r-peft"><label class="topic-check"><input type="checkbox" onchange="tick('r-peft',this)"/><span class="topic-label">Parameter efficient finetuning (PEFT / LoRA)</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-peft"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-peft','l-peft')"/><a class="open-btn" id="l-peft" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-spd"><label class="topic-check"><input type="checkbox" onchange="tick('r-spd',this)"/><span class="topic-label">Basics of Speculative Decoding</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-spd"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-spd','l-spd')"/><a class="open-btn" id="l-spd" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <div class="lecture-block">
+      <div class="lecture-meta">
+        <div class="lecture-label">Full Review · Afternoon</div>
+        <div class="lecture-title">Cross-Lecture Integration</div>
+      </div>
+      <div class="topics">
+        <div class="topic-row" id="r-exq"><label class="topic-check"><input type="checkbox" onchange="tick('r-exq',this)"/><span class="topic-label">Rework the example question (slide 38)</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-exq"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-exq','l-exq')"/><a class="open-btn" id="l-exq" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-macall"><label class="topic-check"><input type="checkbox" onchange="tick('r-macall',this)"/><span class="topic-label">MAC calculations across architectures</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-macall"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-macall','l-macall')"/><a class="open-btn" id="l-macall" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-map"><label class="topic-check"><input type="checkbox" onchange="tick('r-map',this)"/><span class="topic-label">End-to-end concept map</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-map"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-map','l-map')"/><a class="open-btn" id="l-map" href="#" target="_blank">↗</a></div></div>
+        <div class="topic-row" id="r-weak"><label class="topic-check"><input type="checkbox" onchange="tick('r-weak',this)"/><span class="topic-label">Identify weak spots → re-read those pages</span></label><div class="topic-spacer"></div><div class="topic-notes" id="n-weak"><span class="note-icon">🔗</span><input type="url" placeholder="paste notes link…" oninput="setLink(this,'n-weak','l-weak')"/><a class="open-btn" id="l-weak" href="#" target="_blank">↗</a></div></div>
+      </div>
+    </div>
+
+    <div class="tip-box"><strong>💡 Focus tip:</strong> Active recall afternoon — write from memory: (1) MAC formulas for standard, DW-sep, and groupwise conv; (2) quantization pipeline steps; (3) self-attention dimension trace; (4) distillation loss formula. Anything you get stuck on = re-read that section.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ EXAM DAY ══════════════════════ -->
+<div class="exam-card">
+  <h2>🎓 Exam Day — Friday, March 27</h2>
+  <div class="time">5:10 PM – 6:30 PM · In-class · 80 minutes · 5 questions</div>
+  <ul class="checklist">
+    <li>Light review in the morning only — no cramming new material</li>
+    <li>Bring your calculator (allowed!)</li>
+    <li>Closed book — rely on the formulas you've practiced all week</li>
+    <li>Read all 5 questions first, then tackle easiest to hardest</li>
+    <li>Show your work clearly on computation questions (partial credit!)</li>
+  </ul>
+  <div class="exam-reminders">
+    <span class="exam-reminder">🔢 Bring calculator</span>
+    <span class="exam-reminder">📐 Know your MAC formulas</span>
+    <span class="exam-reminder">🧠 Active recall &gt; re-reading</span>
+    <span class="exam-reminder">😴 Sleep well Thu night</span>
+  </div>
+</div>
+
+</div><!-- /days -->
+
+<script>
+  function tick(rowId, cb) {
+    document.getElementById(rowId).classList.toggle('done', cb.checked);
+    updateProgress(document.getElementById(rowId).closest('.day-card'));
+  }
+  function updateProgress(card) {
+    if (!card) return;
+    const all  = card.querySelectorAll('.topic-row input[type="checkbox"]');
+    const done = card.querySelectorAll('.topic-row input[type="checkbox"]:checked');
+    const pct  = all.length ? Math.round(done.length / all.length * 100) : 0;
+    card.querySelector('.progress-bar-fill').style.width = pct + '%';
+    card.querySelector('.day-progress .pct').textContent = pct + '%';
+  }
+  function setLink(input, notesId, linkId) {
+    const val = input.value.trim();
+    const ok  = val.startsWith('http://') || val.startsWith('https://');
+    document.getElementById(linkId).href = ok ? val : '#';
+    document.getElementById(notesId).classList.toggle('has-link', ok);
+  }
+</script>
+</body>
+</html>
