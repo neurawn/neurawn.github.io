@@ -1,0 +1,16 @@
+---
+layout: archive
+title: "Class"
+permalink: /class/
+author_profile: true
+---
+
+{% include base_path %}
+
+<p><a href="{{ base_path }}/midterm-study-schedule.html">Midterm Study Schedule</a></p>
+
+<h2>Lecture Notes</h2>
+
+{% for post in site.class %}
+  {% include archive-single.html %}
+{% endfor %}
