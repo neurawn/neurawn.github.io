@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T12:07:48.085Z",
+  "lastModified": "2026-05-11T12:09:48.085Z",
   "data": {
     "schedule": {
       "08:30": {
@@ -51,21 +51,29 @@
     },
     "lc": {
       "todo": [],
-      "done": [],
+      "done": [
+        {
+          "num": "",
+          "name": "Graph Valid Tree",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/graph-valid-tree/"
+        }
+      ],
       "review": [],
       "reviewed": [
         {
           "num": "",
-          "name": "https://leetcode.com/problems/product-of-array-except-self/?envType=problem-list-v2&envId=abzsq5di",
-          "diff": "medium"
+          "name": "Product Of Array Except Self",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/product-of-array-except-self/"
         }
       ]
     },
     "todos": [],
     "history": {
       "2026-05-11": {
-        "dw": 974,
-        "lc": 0
+        "dw": 1094,
+        "lc": 1
       }
     },
     "sizes": {
@@ -86,7 +94,7 @@
         "h": 202
       }
     },
-    "totalSec": 974,
+    "totalSec": 1094,
     "totalDate": "2026-05-11"
   }
 }
