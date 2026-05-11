@@ -1,23 +1,27 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T02:31:25.795Z",
+  "lastModified": "2026-05-11T11:41:32.396Z",
   "data": {
     "schedule": {
+      "08:00": {
+        "text": "Leetcode",
+        "cat": "deep-work"
+      },
+      "07:30": {
+        "text": "Leetcode",
+        "cat": "deep-work"
+      },
       "08:30": {
-        "text": "Run",
-        "cat": "deep-work"
-      },
-      "09:00": {
-        "text": "Run",
-        "cat": "deep-work"
-      },
-      "14:00": {
-        "text": "Mothers day lunch",
-        "cat": "deep-work"
-      },
-      "14:30": {
         "text": "",
         "cat": "deep-work"
+      },
+      "09:30": {
+        "text": "",
+        "cat": "break"
+      },
+      "10:00": {
+        "text": "",
+        "cat": "break"
       }
     },
     "schedCfg": {
@@ -35,23 +39,23 @@
     "history": {},
     "sizes": {
       "schedule": {
-        "w": 575,
-        "h": 720
+        "w": 533,
+        "h": 682
       },
       "leetcode": {
-        "w": 726,
-        "h": 929
+        "w": 684,
+        "h": 891
       },
       "todo": {
-        "w": 724,
-        "h": 516
+        "w": 682,
+        "h": 478
       },
       "stats": {
-        "w": 636,
-        "h": 224
+        "w": 594,
+        "h": 202
       }
     },
     "totalSec": 0,
-    "totalDate": "2026-05-10"
+    "totalDate": "2026-05-11"
   }
 }
