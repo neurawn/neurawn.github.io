@@ -1,27 +1,47 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T11:43:32.396Z",
+  "lastModified": "2026-05-11T11:51:48.087Z",
   "data": {
     "schedule": {
+      "08:30": {
+        "text": "Run",
+        "cat": ""
+      },
       "08:00": {
         "text": "Leetcode",
         "cat": "deep-work"
       },
-      "07:30": {
-        "text": "Leetcode",
-        "cat": "deep-work"
-      },
-      "08:30": {
-        "text": "",
-        "cat": "deep-work"
+      "10:00": {
+        "text": "Commute",
+        "cat": ""
       },
       "09:30": {
         "text": "",
+        "cat": ""
+      },
+      "10:30": {
+        "text": "Tennis",
         "cat": "break"
       },
-      "10:00": {
-        "text": "",
+      "11:00": {
+        "text": "Tennis",
         "cat": "break"
+      },
+      "12:00": {
+        "text": "Leetcode",
+        "cat": ""
+      },
+      "11:30": {
+        "text": "Commute",
+        "cat": ""
+      },
+      "12:30": {
+        "text": "Leetcode",
+        "cat": ""
+      },
+      "09:00": {
+        "text": "Run",
+        "cat": ""
       }
     },
     "schedCfg": {
@@ -42,26 +62,31 @@
       ]
     },
     "todos": [],
-    "history": {},
+    "history": {
+      "2026-05-11": {
+        "dw": 14,
+        "lc": 0
+      }
+    },
     "sizes": {
       "schedule": {
-        "w": 533,
-        "h": 682
+        "w": 449,
+        "h": 606
       },
       "leetcode": {
-        "w": 684,
-        "h": 891
+        "w": 600,
+        "h": 815
       },
       "todo": {
-        "w": 682,
-        "h": 478
+        "w": 598,
+        "h": 402
       },
       "stats": {
-        "w": 594,
+        "w": 510,
         "h": 202
       }
     },
-    "totalSec": 0,
+    "totalSec": 14,
     "totalDate": "2026-05-11"
   }
 }
