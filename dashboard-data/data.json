@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T19:56:54.592Z",
+  "lastModified": "2026-05-11T19:58:54.592Z",
   "data": {
     "schedule": {
       "08:30": {
@@ -97,13 +97,25 @@
           "name": "Product Of Array Except Self",
           "diff": "medium",
           "url": "https://leetcode.com/problems/product-of-array-except-self/"
+        },
+        {
+          "num": "",
+          "name": "Number Of Islands",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/number-of-islands/"
+        },
+        {
+          "num": "",
+          "name": "Max Area Of Island",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/max-area-of-island/"
         }
       ]
     },
     "todos": [],
     "history": {
       "2026-05-11": {
-        "dw": 3338,
+        "dw": 3458,
         "lc": 2
       }
     },
@@ -125,7 +137,7 @@
         "h": 202
       }
     },
-    "totalSec": 3338,
+    "totalSec": 3458,
     "totalDate": "2026-05-11"
   }
 }
