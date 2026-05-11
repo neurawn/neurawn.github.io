@@ -1,8 +1,25 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T02:29:55.118Z",
+  "lastModified": "2026-05-11T02:31:25.795Z",
   "data": {
-    "schedule": {},
+    "schedule": {
+      "08:30": {
+        "text": "Run",
+        "cat": "deep-work"
+      },
+      "09:00": {
+        "text": "Run",
+        "cat": "deep-work"
+      },
+      "14:00": {
+        "text": "Mothers day lunch",
+        "cat": "deep-work"
+      },
+      "14:30": {
+        "text": "",
+        "cat": "deep-work"
+      }
+    },
     "schedCfg": {
       "start": 6,
       "end": 22,
