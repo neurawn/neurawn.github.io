@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T19:38:54.587Z",
+  "lastModified": "2026-05-11T19:40:54.588Z",
   "data": {
     "schedule": {
       "08:30": {
@@ -75,6 +75,12 @@
           "url": "https://leetcode.com/problems/graph-valid-tree/",
           "noteOpen": false,
           "note": "        # 0) condition check: number of edges = vertices - 1\n        # 1) necessary data structure: visited vector, adjacency graph, queue\n        # 2) Build Graph\n        # 3) push first node into queue, set visited[first node] to true\n        # 4) go through the queue, pop and check front of the queue, set visited accordingly\n"
+        },
+        {
+          "num": "",
+          "name": "Pacific Atlantic Water Flow",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/pacific-atlantic-water-flow/"
         }
       ],
       "review": [
@@ -97,8 +103,8 @@
     "todos": [],
     "history": {
       "2026-05-11": {
-        "dw": 2258,
-        "lc": 1
+        "dw": 2378,
+        "lc": 2
       }
     },
     "sizes": {
@@ -119,7 +125,7 @@
         "h": 202
       }
     },
-    "totalSec": 2258,
+    "totalSec": 2378,
     "totalDate": "2026-05-11"
   }
 }
