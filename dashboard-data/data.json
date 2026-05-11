@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T02:28:04.523Z",
+  "lastModified": "2026-05-11T02:29:55.118Z",
   "data": {
     "schedule": {},
     "schedCfg": {
@@ -18,20 +18,20 @@
     "history": {},
     "sizes": {
       "schedule": {
-        "w": 358,
-        "h": 662
+        "w": 575,
+        "h": 720
       },
       "leetcode": {
-        "w": 418,
-        "h": 422
+        "w": 726,
+        "h": 929
       },
       "todo": {
-        "w": 418,
-        "h": 322
+        "w": 724,
+        "h": 516
       },
       "stats": {
-        "w": 678,
-        "h": 262
+        "w": 636,
+        "h": 224
       }
     },
     "totalSec": 0,
