@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T12:26:20.719Z",
+  "lastModified": "2026-05-11T12:30:10.906Z",
   "data": {
     "schedule": {
       "08:30": {
@@ -65,12 +65,6 @@
           "name": "Clone Graph",
           "diff": "medium",
           "url": "https://leetcode.com/problems/clone-graph/"
-        },
-        {
-          "num": "",
-          "name": "Clone Graph",
-          "diff": "medium",
-          "url": "https://leetcode.com/problems/clone-graph/"
         }
       ],
       "reviewed": [
@@ -85,29 +79,29 @@
     "todos": [],
     "history": {
       "2026-05-11": {
-        "dw": 1921,
+        "dw": 2095,
         "lc": 1
       }
     },
     "sizes": {
       "schedule": {
-        "w": 407,
-        "h": 568
+        "w": 365,
+        "h": 530
       },
       "leetcode": {
-        "w": 558,
-        "h": 777
+        "w": 516,
+        "h": 739
       },
       "todo": {
-        "w": 556,
-        "h": 364
+        "w": 514,
+        "h": 326
       },
       "stats": {
-        "w": 468,
+        "w": 426,
         "h": 202
       }
     },
-    "totalSec": 1921,
+    "totalSec": 2095,
     "totalDate": "2026-05-11"
   }
 }
