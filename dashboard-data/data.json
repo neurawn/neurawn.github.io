@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T11:41:32.396Z",
+  "lastModified": "2026-05-11T11:43:32.396Z",
   "data": {
     "schedule": {
       "08:00": {
@@ -33,7 +33,13 @@
       "todo": [],
       "done": [],
       "review": [],
-      "reviewed": []
+      "reviewed": [
+        {
+          "num": "",
+          "name": "https://leetcode.com/problems/product-of-array-except-self/?envType=problem-list-v2&envId=abzsq5di",
+          "diff": "medium"
+        }
+      ]
     },
     "todos": [],
     "history": {},
