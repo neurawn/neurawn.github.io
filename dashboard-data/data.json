@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "lastModified": "2026-05-11T02:27:56.996Z",
+  "data": {
+    "schedule": {},
+    "schedCfg": {
+      "start": 6,
+      "end": 22,
+      "slot": 30
+    },
+    "lc": {
+      "todo": [],
+      "done": [],
+      "review": [],
+      "reviewed": []
+    },
+    "todos": [],
+    "history": {},
+    "sizes": {
+      "schedule": {
+        "w": 358,
+        "h": 662
+      },
+      "leetcode": {
+        "w": 418,
+        "h": 422
+      },
+      "todo": {
+        "w": 418,
+        "h": 322
+      },
+      "stats": {
+        "w": 678,
+        "h": 262
+      }
+    },
+    "totalSec": 0,
+    "totalDate": "2026-05-10"
+  }
+}
