@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T11:57:48.085Z",
+  "lastModified": "2026-05-11T11:59:48.086Z",
   "data": {
     "schedule": {
       "08:30": {
@@ -64,7 +64,7 @@
     "todos": [],
     "history": {
       "2026-05-11": {
-        "dw": 374,
+        "dw": 494,
         "lc": 0
       }
     },
@@ -86,7 +86,7 @@
         "h": 202
       }
     },
-    "totalSec": 374,
+    "totalSec": 494,
     "totalDate": "2026-05-11"
   }
 }
