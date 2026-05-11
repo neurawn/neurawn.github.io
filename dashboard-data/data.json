@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T12:32:10.907Z",
+  "lastModified": "2026-05-11T12:34:10.906Z",
   "data": {
     "schedule": {
       "08:30": {
@@ -56,7 +56,9 @@
           "num": "",
           "name": "Graph Valid Tree",
           "diff": "medium",
-          "url": "https://leetcode.com/problems/graph-valid-tree/"
+          "url": "https://leetcode.com/problems/graph-valid-tree/",
+          "noteOpen": false,
+          "note": "        # 0) condition check: number of edges = vertices - 1\n        # 1) necessary data structure: visited vector, adjacency graph, queue\n        # 2) Build Graph\n        # 3) push first node into queue, set visited[first node] to true\n        # 4) go through the queue, pop and check front of the queue, set visited accordingly\n"
         }
       ],
       "review": [
@@ -79,7 +81,7 @@
     "todos": [],
     "history": {
       "2026-05-11": {
-        "dw": 2215,
+        "dw": 2335,
         "lc": 1
       }
     },
@@ -101,7 +103,7 @@
         "h": 202
       }
     },
-    "totalSec": 2215,
+    "totalSec": 2335,
     "totalDate": "2026-05-11"
   }
 }
