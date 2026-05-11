@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-11T18:06:54.566Z",
+  "lastModified": "2026-05-11T18:20:54.568Z",
   "data": {
     "schedule": {
       "08:30": {
@@ -53,6 +53,10 @@
       },
       "15:30": {
         "text": "",
+        "cat": ""
+      },
+      "15:00": {
+        "text": "Leetcode",
         "cat": "deep-work"
       }
     },
