@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-12T17:57:02.587Z",
+  "lastModified": "2026-05-12T21:05:59.900Z",
   "data": {
     "schedule": {
       "12:00": {
@@ -59,6 +59,12 @@
           "url": "https://leetcode.com/problems/graph-valid-tree/",
           "noteOpen": false,
           "note": "        # 0) condition check: number of edges = vertices - 1\n        # 1) necessary data structure: visited vector, adjacency graph, queue\n        # 2) Build Graph\n        # 3) push first node into queue, set visited[first node] to true\n        # 4) go through the queue, pop and check front of the queue, set visited accordingly\n"
+        },
+        {
+          "num": "",
+          "name": "Surrounded Regions",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/surrounded-regions/"
         }
       ],
       "review": [
@@ -126,7 +132,7 @@
       },
       "2026-05-12": {
         "dw": 10800,
-        "lc": 0
+        "lc": 1
       }
     },
     "sizes": {
