@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-12T15:45:18.971Z",
+  "lastModified": "2026-05-12T15:53:18.970Z",
   "data": {
     "schedule": {
       "08:30": {
@@ -109,6 +109,12 @@
           "name": "Max Area Of Island",
           "diff": "medium",
           "url": "https://leetcode.com/problems/max-area-of-island/"
+        },
+        {
+          "num": "",
+          "name": "Walls And Gates",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/walls-and-gates/"
         }
       ]
     },
@@ -117,6 +123,10 @@
       "2026-05-11": {
         "dw": 7200,
         "lc": 2
+      },
+      "2026-05-12": {
+        "dw": 7209,
+        "lc": 0
       }
     },
     "sizes": {
@@ -137,7 +147,7 @@
         "h": 202
       }
     },
-    "totalSec": 7200,
+    "totalSec": 7209,
     "totalDate": "2026-05-12"
   }
 }
