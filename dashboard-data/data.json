@@ -1,45 +1,25 @@
 {
   "version": 1,
-  "lastModified": "2026-05-12T21:05:59.900Z",
+  "lastModified": "2026-05-13T12:33:56.600Z",
   "data": {
     "schedule": {
+      "11:00": {
+        "text": "Commute",
+        "cat": ""
+      },
+      "11:30": {
+        "text": "Meeting",
+        "cat": ""
+      },
       "12:00": {
-        "text": "Leetcode",
-        "cat": "deep-work"
+        "text": "Meeting",
+        "cat": ""
       },
-      "12:30": {
-        "text": "Leetcode",
-        "cat": "deep-work"
+      "09:30": {
+        "text": "",
+        "cat": ""
       },
-      "13:30": {
-        "text": "Lift",
-        "cat": "break"
-      },
-      "13:00": {
-        "text": "Lift",
-        "cat": "break"
-      },
-      "14:00": {
-        "text": "Leetcode",
-        "cat": "deep-work"
-      },
-      "14:30": {
-        "text": "Leetcode",
-        "cat": "deep-work"
-      },
-      "15:00": {
-        "text": "Run",
-        "cat": "break"
-      },
-      "15:30": {
-        "text": "Run/Lift",
-        "cat": "break"
-      },
-      "16:00": {
-        "text": "Lift",
-        "cat": "break"
-      },
-      "16:30": {
+      "10:00": {
         "text": "",
         "cat": ""
       }
@@ -133,6 +113,10 @@
       "2026-05-12": {
         "dw": 10800,
         "lc": 1
+      },
+      "2026-05-13": {
+        "dw": 24,
+        "lc": 0
       }
     },
     "sizes": {
@@ -153,7 +137,7 @@
         "h": 202
       }
     },
-    "totalSec": 10800,
-    "totalDate": "2026-05-12"
+    "totalSec": 24,
+    "totalDate": "2026-05-13"
   }
 }
