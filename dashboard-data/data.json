@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-13T12:33:56.600Z",
+  "lastModified": "2026-05-13T12:35:56.601Z",
   "data": {
     "schedule": {
       "11:00": {
@@ -16,11 +16,19 @@
         "cat": ""
       },
       "09:30": {
-        "text": "",
+        "text": "Run",
         "cat": ""
       },
       "10:00": {
-        "text": "",
+        "text": "Run",
+        "cat": ""
+      },
+      "09:00": {
+        "text": "Final Report",
+        "cat": ""
+      },
+      "08:30": {
+        "text": "Final Report",
         "cat": ""
       }
     },
@@ -115,7 +123,7 @@
         "lc": 1
       },
       "2026-05-13": {
-        "dw": 24,
+        "dw": 57,
         "lc": 0
       }
     },
@@ -137,7 +145,7 @@
         "h": 202
       }
     },
-    "totalSec": 24,
+    "totalSec": 57,
     "totalDate": "2026-05-13"
   }
 }
