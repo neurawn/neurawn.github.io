@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-19T19:07:03.839Z",
+  "lastModified": "2026-05-19T19:09:03.840Z",
   "data": {
     "schedule": {
       "11:00": {
@@ -118,15 +118,15 @@
         },
         {
           "num": "",
-          "name": "Number Of Islands",
-          "diff": "medium",
-          "url": "https://leetcode.com/problems/number-of-islands/"
-        },
-        {
-          "num": "",
           "name": "Binary Tree Right Side View",
           "diff": "medium",
           "url": "https://leetcode.com/problems/binary-tree-right-side-view/"
+        },
+        {
+          "num": "",
+          "name": "Max Area Of Island",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/max-area-of-island/"
         }
       ]
     },
@@ -145,7 +145,7 @@
         "lc": 0
       },
       "2026-05-19": {
-        "dw": 3363,
+        "dw": 3483,
         "lc": 3
       }
     },
@@ -167,7 +167,7 @@
         "h": 202
       }
     },
-    "totalSec": 3363,
+    "totalSec": 3483,
     "totalDate": "2026-05-19"
   }
 }
