@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-19T13:19:03.783Z",
+  "lastModified": "2026-05-19T13:21:03.784Z",
   "data": {
     "schedule": {
       "11:00": {
@@ -59,6 +59,12 @@
           "name": "Binary Search Tree Iterator",
           "diff": "medium",
           "url": "https://leetcode.com/problems/binary-search-tree-iterator/"
+        },
+        {
+          "num": "",
+          "name": "Symmetric Tree",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/symmetric-tree/"
         }
       ],
       "review": [
@@ -133,8 +139,8 @@
         "lc": 0
       },
       "2026-05-19": {
-        "dw": 2111,
-        "lc": 2
+        "dw": 2231,
+        "lc": 3
       }
     },
     "sizes": {
@@ -155,7 +161,7 @@
         "h": 202
       }
     },
-    "totalSec": 2111,
+    "totalSec": 2231,
     "totalDate": "2026-05-19"
   }
 }
