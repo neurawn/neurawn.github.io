@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-19T12:43:05.988Z",
+  "lastModified": "2026-05-19T12:43:28.689Z",
   "data": {
     "schedule": {
       "11:00": {
@@ -24,11 +24,11 @@
         "cat": ""
       },
       "09:00": {
-        "text": "Final Report",
+        "text": "Leetcode",
         "cat": ""
       },
       "08:30": {
-        "text": "Final Report",
+        "text": "Leetcode",
         "cat": ""
       }
     },
