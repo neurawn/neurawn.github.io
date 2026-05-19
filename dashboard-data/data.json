@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-19T13:31:42.917Z",
+  "lastModified": "2026-05-19T13:37:03.786Z",
   "data": {
     "schedule": {
       "11:00": {
@@ -121,6 +121,12 @@
           "name": "Number Of Islands",
           "diff": "medium",
           "url": "https://leetcode.com/problems/number-of-islands/"
+        },
+        {
+          "num": "",
+          "name": "Binary Tree Right Side View",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/binary-tree-right-side-view/"
         }
       ]
     },
