@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-20T14:10:26.750Z",
+  "lastModified": "2026-05-20T21:52:49.935Z",
   "data": {
     "schedule": {
       "11:00": {
@@ -71,6 +71,12 @@
           "name": "Number Of Closed Islands",
           "diff": "medium",
           "url": "https://leetcode.com/problems/number-of-closed-islands/"
+        },
+        {
+          "num": "",
+          "name": "Word Search",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/word-search/"
         }
       ],
       "review": [
@@ -156,7 +162,7 @@
       },
       "2026-05-20": {
         "dw": 2700,
-        "lc": 1
+        "lc": 2
       }
     },
     "sizes": {
