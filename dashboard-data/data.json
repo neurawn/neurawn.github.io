@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastModified": "2026-05-20T13:36:59.599Z",
+  "lastModified": "2026-05-20T13:38:55.010Z",
   "data": {
     "schedule": {
       "11:00": {
@@ -65,6 +65,12 @@
           "name": "Symmetric Tree",
           "diff": "medium",
           "url": "https://leetcode.com/problems/symmetric-tree/"
+        },
+        {
+          "num": "",
+          "name": "Number Of Closed Islands",
+          "diff": "medium",
+          "url": "https://leetcode.com/problems/number-of-closed-islands/"
         }
       ],
       "review": [
@@ -149,8 +155,8 @@
         "lc": 3
       },
       "2026-05-20": {
-        "dw": 1243,
-        "lc": 0
+        "dw": 1358,
+        "lc": 1
       }
     },
     "sizes": {
@@ -171,7 +177,7 @@
         "h": 202
       }
     },
-    "totalSec": 1243,
+    "totalSec": 1358,
     "totalDate": "2026-05-20"
   }
 }
