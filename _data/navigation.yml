@@ -9,5 +9,8 @@ main:
   - title: "Class"
     url: /class/
 
+  - title: "Reinforcement Learning"
+    url: /reinforcement-learning/
+
   - title: "Dashboard"
     url: /private/dashboard/

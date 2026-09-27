@@ -1,0 +1,17 @@
+---
+layout: archive
+title: "Reinforcement Learning"
+permalink: /reinforcement-learning/
+author_profile: true
+---
+
+{% include base_path %}
+
+{% assign notes = site.rl | sort: "order" %}
+{% assign folders = notes | group_by: "folder" %}
+{% for folder in folders %}
+  <h2>{{ folder.name }}</h2>
+  {% for post in folder.items %}
+    {% include archive-single.html %}
+  {% endfor %}
+{% endfor %}

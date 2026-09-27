@@ -191,6 +191,9 @@ collections:
   class:
     output: true
     permalink: /:collection/:path/
+  rl:
+    output: true
+    permalink: /reinforcement-learning/:path/
 
 
 # Defaults
@@ -252,6 +255,13 @@ defaults:
   - scope:
       path: ""
       type: class
+    values:
+      layout: single
+      author_profile: true
+      share: true
+  - scope:
+      path: ""
+      type: rl
     values:
       layout: single
       author_profile: true
