@@ -23,12 +23,14 @@ $$
 P_\phi(y_w \succ y_l \mid x) = \frac{e^{r_\phi(x, y_w)}}{e^{r_\phi(x, y_w)} + e^{r_\phi(x, y_l)}} \tag{1}
 $$
 
-*"A response's preference strength is proportional to its exponential reward."*
+***"A response's preference strength is proportional to its exponential reward."***
+
+Continuing with the derivation of the Bradley Terry model:
 
 $$
 \begin{aligned}
 (1) \iff P_\phi(y_w \succ y_l \mid x) &= \frac{1}{1 + e^{r_\phi(x, y_l) - r_\phi(x, y_w)}} \\
-&= \sigma\big( r_\phi(x, y_w) - r_\phi(x, y_l) \big)
+\iff P_\phi(y_w \succ y_l \mid x) &= \sigma\big( r_\phi(x, y_w) - r_\phi(x, y_l) \big)
 \end{aligned}
 $$
 
