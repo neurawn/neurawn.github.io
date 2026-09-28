@@ -38,7 +38,7 @@ $$
 
 The model observes the preference $$y_w$$ over $$y_l$$, and assigns probability $$P_\phi(y_w \succ y_l \mid x) = \sigma\big( r_\phi(x, y_w) - r_\phi(x, y_l) \big)$$ to that preference.
 
-1. First, combining all the preferences, treating each pair as an independent training observation. The probability of observing all their preference labels is:
+First, combining all the preferences, treating each pair as an independent training observation. The probability of observing all their preference labels is:
 
 $$
 L(\phi) = \prod_{i=1}^{N} p_i(\phi), \qquad p_i(\phi) = P_\phi\big(y_w^{(i)} \succ y_l^{(i)} \mid x_i\big)
@@ -50,9 +50,7 @@ $$
 \phi^* = \arg\max_{\phi} \prod_{i=1}^{N} p_i(\phi)
 $$
 
-We want to maximize $$L(\phi) \Rightarrow$$ minimize $$\text{loss}(\phi) = -L(\phi)$$
-
-$$\iff$$ minimize the negative log likelihood $$\mathcal{L}(\phi) = -\log L(\phi)$$
+We want to maximize $$L(\phi) \Rightarrow$$ minimize $$\text{loss}(\phi) = -L(\phi)$$, which is equivalent to minimizing the negative log likelihood $$\mathcal{L}(\phi) = -\log L(\phi)$$
 
 $$
 \iff \mathcal{L}(\phi) = -\log \prod_{i=1}^{N} p_i(\phi) = -\sum_{i=1}^{N} \log p_i(\phi)
