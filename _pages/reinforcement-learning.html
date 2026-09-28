@@ -10,8 +10,7 @@ author_profile: true
 {% assign notes = site.rl | sort: "order" %}
 {% assign folders = notes | group_by: "folder" %}
 {% for folder in folders %}
-  <h2>{{ folder.name }}</h2>
   {% for post in folder.items %}
-    {% include archive-single.html %}
+    {% include archive-single.html excerpt=false %}
   {% endfor %}
 {% endfor %}
