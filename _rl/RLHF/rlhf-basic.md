@@ -4,7 +4,9 @@ collection: rl
 folder: RLHF
 order: 1
 equation_numbers: false
-permalink: /reinforcement-learning/rlhf/rlhf-basic/
+permalink: /notes/reinforcement-learning/rlhf/rlhf-basic/
+redirect_from:
+  - /reinforcement-learning/rlhf/rlhf-basic/
 ---
 
 ## Deriving the RLHF Objective

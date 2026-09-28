@@ -82,7 +82,7 @@ analytics:
 author:
   name             : "Alex Nguyen"
   avatar           : "profile.png"
-  bio              : "Brains, Memories, systems, running, and why it is never my or somebody else's fault."
+  bio              : "Figuring out how the brain works or sub 4 in the mile, maybe I land somewhere I haven't seen before."
   location         : "New York City"
   employer         : ""
   pubmed           : ""
@@ -193,7 +193,7 @@ collections:
     permalink: /:collection/:path/
   rl:
     output: true
-    permalink: /reinforcement-learning/:path/
+    permalink: /notes/reinforcement-learning/:path/
 
 
 # Defaults

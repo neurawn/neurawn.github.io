@@ -3,14 +3,15 @@ main:
   - title: "Projects"
     url: /portfolio/
 
-  - title: "Blog"
-    url: /year-archive/
+  # Blog and Class are hidden for now; uncomment to bring them back.
+  # - title: "Blog"
+  #   url: /year-archive/
 
-  - title: "Class"
-    url: /class/
+  # - title: "Class"
+  #   url: /class/
 
-  - title: "Reinforcement Learning"
-    url: /reinforcement-learning/
+  - title: "Notes"
+    url: /notes/
 
   - title: "Dashboard"
     url: /private/dashboard/
