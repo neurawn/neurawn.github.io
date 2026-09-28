@@ -4,12 +4,14 @@ collection: rl
 folder: RLHF
 order: 2
 equation_numbers: false
-permalink: /reinforcement-learning/rlhf/bradley-terry-model/
+permalink: /notes/reinforcement-learning/rlhf/bradley-terry-model/
+redirect_from:
+  - /reinforcement-learning/rlhf/bradley-terry-model/
 ---
 
 ## Bradley Terry Model
 
-In [RLHF basic](/reinforcement-learning/rlhf/rlhf-basic/), the reward $$r(x, y)$$ comes from a reward model trained on human preferences. This note is how that reward model $$r_\phi$$ is trained. Suppose the dataset contains:
+In [RLHF basic](/notes/reinforcement-learning/rlhf/rlhf-basic/), the reward $$r(x, y)$$ comes from a reward model trained on human preferences. This note is how that reward model $$r_\phi$$ is trained. Suppose the dataset contains:
 
 $$
 \mathcal{D}_{\text{pref}} = \{ (x_i, y_w^{(i)}, y_l^{(i)}) \}_{i=1}^{N}

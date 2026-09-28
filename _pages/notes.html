@@ -1,0 +1,14 @@
+---
+layout: archive
+title: "Notes"
+permalink: /notes/
+author_profile: true
+---
+
+{% include base_path %}
+
+{% comment %} Lists every page permalinked under /notes/ (e.g. /notes/reinforcement-learning/). {% endcomment %}
+{% assign sections = site.pages | where_exp: "p", "p.url contains '/notes/'" | where_exp: "p", "p.url != '/notes/'" | sort: "title" %}
+{% for post in sections %}
+  {% include archive-single.html excerpt=false %}
+{% endfor %}
