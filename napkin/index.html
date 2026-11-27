@@ -147,7 +147,9 @@ button{font:inherit;color:inherit}
 .note.err{color:var(--danger)}
 .note.ok{color:var(--ok)}
 .drafts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:50vh;overflow:auto}
-.draft{width:100%;display:flex;justify-content:space-between;align-items:baseline;gap:12px;text-align:left;border:1px solid var(--line);background:var(--chrome);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:14px}
+.drafts li{display:flex;gap:6px;align-items:stretch}
+.linkbtn{flex:none;font-size:12px;padding:6px 10px}
+.draft{flex:1;min-width:0;display:flex;justify-content:space-between;align-items:baseline;gap:12px;text-align:left;border:1px solid var(--line);background:var(--chrome);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:14px}
 .draft:hover{background:var(--chrome-2)}
 .draft:disabled{opacity:.6;cursor:default}
 .draft .meta{color:var(--muted);font-size:12px;white-space:nowrap}
@@ -185,6 +187,8 @@ button{font:inherit;color:inherit}
     <button data-cmd="drafts">Open draft from GitHub…</button>
     <button data-cmd="saveas">Save as new draft…</button>
     <button data-cmd="newdraft" id="newDraftBtn">New draft</button>
+    <button data-cmd="copylink" id="copyLinkBtn" hidden>Copy link to this draft</button>
+    <button data-cmd="restore" id="restoreBtn" hidden>Restore unsaved board</button>
     <button data-cmd="ghsettings">GitHub settings…</button>
     <hr>
     <button data-cmd="mermaid">Mermaid in / out <kbd>M</kbd></button>
@@ -1141,6 +1145,8 @@ $('#menu').addEventListener('click',async e=>{
   if(c==='drafts') openDrafts();
   if(c==='saveas') saveToGitHub(true);
   if(c==='ghsettings') openGhSettings();
+  if(c==='copylink') copyLink();
+  if(c==='restore') restoreBackup();
 });
 async function saveFile(name,data){
   const dl=window.claude&&window.claude.use?await window.claude.use('downloads').catch(()=>null):null;
@@ -1187,21 +1193,25 @@ new MutationObserver(onTheme).observe(document.documentElement,{attributes:true,
 
 /* ---------- GitHub drafts ----------
    Each draft is <folder>/<slug>.json in a repo, written through the GitHub contents API with a
-   fine-grained token kept in this browser's localStorage (never in the page source or the repo). */
-const GH_KEY='napkin.github.v1';
+   fine-grained token kept in this browser's localStorage (never in the page source or the repo).
+   Every saved draft has its own link, ?draft=<slug>, which opens it for anyone the repo is readable by;
+   only someone with a token that can write to the repo saves changes back. */
+const GH_KEY='napkin.github.v1', BACKUP_KEY='napkin.board.backup';
 const GH_DEFAULTS={repo:'neurawn/neurawn.github.io',branch:'main',folder:'napkin-drafts',token:''};
 let gh=Object.assign({},GH_DEFAULTS,(()=>{ try{ return JSON.parse(localStorage.getItem(GH_KEY)||'{}'); }catch(e){ return {}; } })());
-let draft=null;        // {name, path, sha} of the GitHub file this board is linked to
+let draft=null;        // {name, path, sha, repo, branch} of the GitHub file this board is linked to
 let savedHash=null;    // hash of the elements as last saved/opened, drives the unsaved-changes dot
-let saving=false;
+let saving=false, loadingLink=false;
 function saveGh(){ try{ localStorage.setItem(GH_KEY,JSON.stringify(gh)); }catch(e){} }
 function b64encode(str){ const bytes=new TextEncoder().encode(str); let bin=''; for(let i=0;i<bytes.length;i+=0x8000) bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000)); return btoa(bin); }
 function b64decode(b64){ const bin=atob(String(b64).replace(/\s/g,'')); const bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i); return new TextDecoder().decode(bytes); }
 const encPath=p=>p.split('/').map(encodeURIComponent).join('/');
-const folderPath=()=>String(gh.folder||'').replace(/^\/+|\/+$/g,'');
+const cleanFolder=f=>String(f||'').replace(/^\/+|\/+$/g,'');
+const folderPath=()=>cleanFolder(gh.folder);
 const slugify=s=>String(s).toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60)||'untitled';
 const draftPath=name=>[folderPath(),slugify(name)+'.json'].filter(Boolean).join('/');
-const contentsUrl=path=>`/repos/${gh.repo}/contents/${encPath(path)}?ref=${encodeURIComponent(gh.branch)}`;
+const dRepo=()=>(draft&&draft.repo)||gh.repo, dBranch=()=>(draft&&draft.branch)||gh.branch;
+const contentsUrl=(path,repo=gh.repo,branch=gh.branch)=>`/repos/${repo}/contents/${encPath(path)}?ref=${encodeURIComponent(branch)}`;
 async function ghApi(path,opts={}){
   if(!gh.token) throw {kind:'notoken'};
   let res;
@@ -1213,57 +1223,138 @@ async function ghApi(path,opts={}){
   if(opts.accept&&opts.accept.includes('raw')) return res.text();
   return res.status===204?null:res.json();
 }
-function ghErr(e){
+function ghErr(e,repo=gh.repo){
   if(!e) return 'Something went wrong.';
   if(e.kind==='notoken') return 'Add a GitHub token in GitHub settings first.';
   if(e.kind==='network') return 'Couldn’t reach GitHub. Check your connection.';
   if(e.kind==='format') return 'That file isn’t a Napkin draft.';
   if(e.status===401) return 'GitHub rejected the token. It may have expired; paste a new one in GitHub settings.';
-  if(e.status===403) return /rate limit/i.test(e.msg)?'GitHub’s rate limit was hit. Try again in a few minutes.':`This token can’t write to ${gh.repo}. Give it Contents: Read and write on that repo.`;
-  if(e.status===404) return `Couldn’t find ${gh.repo} (branch ${gh.branch}). Check GitHub settings.`;
+  if(e.status===403) return /rate limit/i.test(e.msg)?'GitHub’s rate limit was hit. Try again in a few minutes.':`This token can’t write to ${repo}. Give it Contents: Read and write on that repo.`;
+  if(e.status===404) return `Couldn’t find that in ${repo}. It may have been renamed or deleted.`;
   if(e.status===409||e.status===422) return 'conflict';
   return `GitHub error ${e.status}${e.msg?': '+e.msg:''}`;
 }
+
+/* links */
+function linkFor(d){
+  if(!d) return '';
+  const u=new URL(location.href); u.search=''; u.hash='';
+  const i=d.path.lastIndexOf('/'), dir=i<0?'':d.path.slice(0,i), slug=d.path.slice(i+1).replace(/\.json$/i,'');
+  u.searchParams.set('draft',slug);
+  if(dir!==GH_DEFAULTS.folder) u.searchParams.set('folder',dir);
+  if((d.repo||gh.repo)!==GH_DEFAULTS.repo) u.searchParams.set('repo',d.repo||gh.repo);
+  if((d.branch||gh.branch)!==GH_DEFAULTS.branch) u.searchParams.set('branch',d.branch||gh.branch);
+  return u.toString();
+}
+function syncUrl(){ try{ const want=draft?linkFor(draft):location.origin+location.pathname; if(want!==location.href) history.replaceState(null,'',want); }catch(e){} }
+async function copyLink(d=draft){
+  if(!d){ toast('Save this board first; then it gets its own link.'); return; }
+  const url=linkFor(d);
+  try{ await navigator.clipboard.writeText(url); toast('Link copied. Anyone can view it; only you can save changes.'); }
+  catch(e){ toast('Couldn’t copy automatically. The link is in your address bar.'); }
+}
+
+/* save state */
 function isDirty(){ return savedHash==null ? els.length>0 : hash(JSON.stringify(els))!==savedHash; }
 function syncSaveUI(state,msg){
   const m=$('#syncMsg'), b=$('#saveBtn'); if(!m||!b) return;
-  const dirty=isDirty();
-  b.classList.toggle('dirty',dirty&&!saving); b.disabled=saving; b.textContent=saving?'Saving…':'Save';
-  b.title=draft?`Save to ${gh.repo}/${draft.path} (⌘S)`:'Save to GitHub (⌘S)';
-  m.className='sync-msg'+(state==='err'?' err':dirty?' dirty':'');
-  m.textContent=msg||(saving?'Saving to GitHub…':!draft?(els.length?'Not saved to GitHub':''):dirty?`${draft.name} · unsaved changes`:`${draft.name} · saved`);
-  m.title=draft?`${gh.repo}/${draft.path}`:'';
+  const dirty=isDirty(), viewOnly=draft&&!gh.token;
+  b.classList.toggle('dirty',dirty&&!saving&&!viewOnly); b.disabled=saving||loadingLink; b.textContent=saving?'Saving…':'Save';
+  b.title=draft?`Save to ${dRepo()}/${draft.path} (⌘S)`:'Save to GitHub (⌘S)';
+  m.className='sync-msg'+(state==='err'?' err':dirty&&!viewOnly?' dirty':'');
+  m.textContent=msg||(loadingLink?'Opening shared draft…':saving?'Saving to GitHub…':!draft?(els.length?'Not saved to GitHub':'')
+    :viewOnly?`${draft.name} · view only${dirty?', changes stay in this browser':''}`:dirty?`${draft.name} · unsaved changes`:`${draft.name} · saved`);
+  m.title=draft?`${dRepo()}/${draft.path}`:'';
+  $('#copyLinkBtn').hidden=!draft;
+  let hasBackup=false; try{ hasBackup=!!localStorage.getItem(BACKUP_KEY); }catch(e){}
+  $('#restoreBtn').hidden=!hasBackup;
 }
 function suggestName(){ const t=els.find(e=>e.type==='text'&&e.text)||els.find(e=>e.label); const s=t?(t.text||t.label).split('\n')[0].slice(0,40).trim():''; return s||('sketch '+new Date().toISOString().slice(0,10)); }
 async function saveToGitHub(asNew){
-  if(saving) return;
+  if(saving||loadingLink) return;
   if(editing) ed.blur();
-  if(!gh.token){ openGhSettings('Add a token to start saving drafts to GitHub.'); return; }
+  if(!gh.token){ openGhSettings(draft?`“${draft.name}” lives in ${dRepo()}. Add a token that can write there to save changes, or use Download board in the menu.`:'Add a token to start saving drafts to GitHub.'); return; }
   if(!draft||asNew){ openNameDlg(); return; }
-  await putDraft(draft.name,draft.path,draft.sha);
+  await putDraft(draft.name,draft.path,draft.sha,dRepo(),dBranch());
 }
-async function putDraft(name,path,sha){
+async function putDraft(name,path,sha,repo=gh.repo,branch=gh.branch){
   saving=true; syncSaveUI();
   const snap=JSON.stringify(els);
-  const body={message:`napkin: save "${name}"`,branch:gh.branch,
+  const body={message:`napkin: save "${name}"`,branch,
     content:b64encode(JSON.stringify({napkin:1,name,savedAt:new Date().toISOString(),elements:els}))};
   if(sha) body.sha=sha;
   try{
-    const r=await ghApi(`/repos/${gh.repo}/contents/${encPath(path)}`,{method:'PUT',body:JSON.stringify(body)});
-    draft={name,path,sha:r.content.sha}; savedHash=hash(snap); saving=false; saveLocal(); syncSaveUI(); toast(`Saved “${name}” to GitHub.`);
+    const r=await ghApi(`/repos/${repo}/contents/${encPath(path)}`,{method:'PUT',body:JSON.stringify(body)});
+    draft={name,path,sha:r.content.sha,repo,branch}; savedHash=hash(snap); saving=false; saveLocal(); syncUrl(); syncSaveUI();
+    toast(`Saved “${name}” to GitHub. Its link is in the address bar.`);
   }catch(e){
-    saving=false; const m=ghErr(e);
+    saving=false; const m=ghErr(e,repo);
     if(m==='conflict'){
       // the file changed on GitHub (another device or tab): pick up its current sha so the next Save overwrites it on purpose
-      try{ const cur=await ghApi(contentsUrl(path),{allow404:true}); draft={name,path,sha:cur?cur.sha:undefined}; saveLocal(); }catch(_){}
+      try{ const cur=await ghApi(contentsUrl(path,repo,branch),{allow404:true}); draft={name,path,sha:cur?cur.sha:undefined,repo,branch}; saveLocal(); }catch(_){}
       syncSaveUI('err','Changed on GitHub since you opened it. Save again to overwrite.');
       toast('This draft changed on GitHub since you opened it. Press Save again to overwrite it, or open it from Drafts.'); return;
     }
     syncSaveUI('err',m); toast(m);
   }
 }
-function newDraft(){ els=[]; sel.clear(); draft=null; savedHash=null; undoStack=[]; redoStack=[]; lastSnap='[]'; dcache.clear(); saveLocal(); syncUI(); req(); }
+function newDraft(){ els=[]; sel.clear(); draft=null; savedHash=null; undoStack=[]; redoStack=[]; lastSnap='[]'; dcache.clear(); saveLocal(); syncUrl(); syncUI(); req(); }
 
+/* unsaved work is parked here before a link replaces it, and can be swapped back from the menu */
+function stashBackup(){ try{ localStorage.setItem(BACKUP_KEY,JSON.stringify({els,draft,savedHash,at:Date.now()})); }catch(e){} }
+function restoreBackup(){
+  let b=null; try{ b=JSON.parse(localStorage.getItem(BACKUP_KEY)||'null'); }catch(e){}
+  if(!b||!Array.isArray(b.els)){ toast('Nothing to restore.'); return; }
+  const cur={els,draft,savedHash,at:Date.now()};
+  els=b.els; draft=b.draft||null; savedHash=b.savedHash??null; sel.clear(); dcache.clear(); undoStack=[]; redoStack=[]; lastSnap=JSON.stringify(els);
+  try{ if(cur.els.length) localStorage.setItem(BACKUP_KEY,JSON.stringify(cur)); else localStorage.removeItem(BACKUP_KEY); }catch(e){}
+  saveLocal(); syncUrl(); syncUI(); fitTo(); toast('Restored your unsaved board. The board you were on is now the one to restore.');
+}
+
+/* loading a draft: with a token through the API (fresh, works for private repos); without one, publicly */
+async function fetchPublic(repo,branch,path){
+  try{
+    const r=await fetch(`https://api.github.com${contentsUrl(path,repo,branch)}`,{headers:{Accept:'application/vnd.github+json'},cache:'no-store'});
+    if(r.status===404) throw {kind:'http',status:404};
+    if(r.ok){ const f=await r.json(); if(f.content) return {text:b64decode(f.content),sha:f.sha}; }
+  }catch(e){ if(e&&e.status===404) throw e; }
+  let r2; try{ r2=await fetch(`https://raw.githubusercontent.com/${repo}/${encodeURIComponent(branch)}/${encPath(path)}`,{cache:'no-store'}); }catch(e){ throw {kind:'network'}; }
+  if(!r2.ok) throw {kind:'http',status:r2.status};
+  return {text:await r2.text(),sha:undefined};
+}
+async function loadDraft(repo,branch,path){
+  let got=null;
+  if(gh.token){
+    try{ const f=await ghApi(contentsUrl(path,repo,branch));
+      got={text:f.content?b64decode(f.content):await ghApi(contentsUrl(path,repo,branch),{accept:'application/vnd.github.raw+json'}),sha:f.sha}; }
+    catch(e){ if(e.kind==='network') throw e; }   // token may not cover this repo: fall back to a public read
+  }
+  if(!got) got=await fetchPublic(repo,branch,path);
+  let d; try{ d=JSON.parse(got.text); }catch(_){ throw {kind:'format'}; }
+  const list=Array.isArray(d)?d:d&&d.elements; if(!Array.isArray(list)) throw {kind:'format'};
+  els=list.filter(x=>x&&typeof x.type==='string'&&x.id); sel.clear(); dcache.clear();
+  for(const e of els) if(e.type==='text') fitText(e);
+  draft={name:(d&&d.name)||path.split('/').pop().replace(/\.json$/i,''),path,sha:got.sha,repo,branch};
+  undoStack=[]; redoStack=[]; lastSnap=JSON.stringify(els); savedHash=hash(lastSnap);
+  saveLocal(); syncUrl(); syncUI(); fitTo();
+}
+async function handleLink(){
+  const q=new URLSearchParams(location.search), slug=q.get('draft');
+  if(!slug){ syncUrl(); return; }
+  const repo=q.get('repo')||GH_DEFAULTS.repo, branch=q.get('branch')||GH_DEFAULTS.branch, folder=cleanFolder(q.has('folder')?q.get('folder'):GH_DEFAULTS.folder);
+  const path=[folder,slug.replace(/^\/+/,'')+'.json'].filter(Boolean).join('/');
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo)||path.split('/').includes('..')){ toast('That draft link isn’t valid.'); return; }
+  const same=draft&&draft.path===path&&dRepo()===repo;
+  if(same&&isDirty()){ toast(`Showing your unsaved changes to “${draft.name}”.`); syncSaveUI(); return; }
+  if(!same&&isDirty()&&els.length) stashBackup();
+  loadingLink=true; syncSaveUI();
+  try{ await loadDraft(repo,branch,path); loadingLink=false; syncSaveUI();
+    toast(gh.token?`Opened “${draft.name}”.`:`Opened “${draft.name}”. You can edit it here; saving back needs a GitHub token with access.`);
+    if(!same&&localStorage.getItem(BACKUP_KEY)) setTimeout(()=>toast('Your previous unsaved board is kept. Menu → Restore unsaved board.'),3200); }
+  catch(e){ loadingLink=false; const m=ghErr(e,repo); syncSaveUI('err',m==='conflict'?'Couldn’t open that draft.':m); toast(m==='conflict'?'Couldn’t open that draft.':m); }
+}
+
+/* name dialog */
 let nameArm=null;
 function openNameDlg(){ const i=$('#draftName'); i.value=draft?draft.name+' copy':suggestName(); updNamePath(); $('#nameDlg').hidden=false; setTimeout(()=>{ i.focus(); i.select(); },0); }
 function updNamePath(){ nameArm=null; $('#nameGo').textContent='Save'; $('#nameNote').textContent='';
@@ -1282,6 +1373,7 @@ $('#nameForm').addEventListener('submit',async e=>{
   finally{ go.disabled=false; }
 });
 
+/* drafts list */
 const fmtSize=n=>n<1024?n+' B':(n/1024).toFixed(n<10240?1:0)+' KB';
 async function openDrafts(){
   $('#draftsDlg').hidden=false; const list=$('#draftsList'), note=$('#draftsNote'); list.replaceChildren(); note.className='note';
@@ -1294,10 +1386,13 @@ async function openDrafts(){
     if(!files.length){ note.textContent=`No drafts in ${where} yet. Press Save to create the first one.`; return; }
     note.textContent=`${files.length} draft${files.length>1?'s':''} in ${where} (${gh.branch})`;
     for(const f of files){
-      const li=document.createElement('li'), b=document.createElement('button'), nm=document.createElement('span'), meta=document.createElement('span');
-      b.type='button'; b.className='draft'; meta.className='meta';
-      nm.textContent=f.name.replace(/\.json$/i,''); meta.textContent=(draft&&draft.path===f.path?'open now · ':'')+fmtSize(f.size);
-      b.append(nm,meta); b.addEventListener('click',()=>openDraft(f.path,b,meta)); li.append(b); list.append(li);
+      const li=document.createElement('li'), b=document.createElement('button'), nm=document.createElement('span'), meta=document.createElement('span'), cp=document.createElement('button');
+      b.type='button'; b.className='draft'; meta.className='meta'; cp.type='button'; cp.className='btn linkbtn'; cp.textContent='Copy link';
+      const isOpen=draft&&draft.path===f.path&&dRepo()===gh.repo;
+      nm.textContent=f.name.replace(/\.json$/i,''); meta.textContent=(isOpen?'open now · ':'')+fmtSize(f.size);
+      b.append(nm,meta); b.addEventListener('click',()=>openDraft(f.path,b,meta));
+      cp.addEventListener('click',()=>copyLink({name:nm.textContent,path:f.path,repo:gh.repo,branch:gh.branch}));
+      li.append(b,cp); list.append(li);
     }
   }catch(e){ note.className='note err'; const m=ghErr(e); note.textContent=m==='conflict'?'Couldn’t list drafts.':m; }
 }
@@ -1305,19 +1400,12 @@ async function openDraft(path,btn,meta){
   if(isDirty()&&els.length&&btn.dataset.armed!=='1'){
     btn.dataset.armed='1'; meta.textContent='This board has unsaved changes. Click again to replace it'; return; }
   btn.disabled=true;
-  try{
-    const f=await ghApi(contentsUrl(path));
-    const text=f.content?b64decode(f.content):await ghApi(contentsUrl(path),{accept:'application/vnd.github.raw+json'});
-    let d; try{ d=JSON.parse(text); }catch(_){ throw {kind:'format'}; }
-    const list=Array.isArray(d)?d:d&&d.elements; if(!Array.isArray(list)) throw {kind:'format'};
-    els=list.filter(x=>x&&typeof x.type==='string'&&x.id); sel.clear(); dcache.clear();
-    draft={name:(d&&d.name)||f.name.replace(/\.json$/i,''),path,sha:f.sha};
-    undoStack=[]; redoStack=[]; lastSnap=JSON.stringify(els); savedHash=hash(lastSnap);
-    saveLocal(); syncUI(); closeDialogs(); fitTo(); toast(`Opened “${draft.name}”.`);
-  }catch(e){ const m=ghErr(e); meta.textContent=m==='conflict'?'Couldn’t open it':m; btn.disabled=false; }
+  try{ await loadDraft(gh.repo,gh.branch,path); closeDialogs(); toast(`Opened “${draft.name}”.`); }
+  catch(e){ const m=ghErr(e); meta.textContent=m==='conflict'?'Couldn’t open it':m; btn.disabled=false; }
 }
 $('#draftsSettings').addEventListener('click',()=>{ closeDialogs(); openGhSettings(); });
 
+/* settings */
 function openGhSettings(msg){
   $('#ghToken').value=gh.token; $('#ghRepo').value=gh.repo; $('#ghBranch').value=gh.branch; $('#ghFolder').value=gh.folder;
   const n=$('#ghNote'); n.className='note'; n.textContent=msg||(gh.token?'A token is saved in this browser.':'');
@@ -1325,7 +1413,7 @@ function openGhSettings(msg){
 }
 function readGhForm(){ return {token:$('#ghToken').value.trim(),
   repo:$('#ghRepo').value.trim().replace(/^https?:\/\/github\.com\//i,'').replace(/\.git$/,'').replace(/^\/+|\/+$/g,''),
-  branch:$('#ghBranch').value.trim()||'main', folder:$('#ghFolder').value.trim().replace(/^\/+|\/+$/g,'')}; }
+  branch:$('#ghBranch').value.trim()||'main', folder:cleanFolder($('#ghFolder').value.trim())}; }
 async function testGh(cfg){
   const n=$('#ghNote'); n.className='note'; n.textContent='Checking…';
   if(!/^[\w.-]+\/[\w.-]+$/.test(cfg.repo)){ n.className='note err'; n.textContent='Repository should look like owner/name.'; return false; }
@@ -1335,20 +1423,17 @@ async function testGh(cfg){
     const r=await ghApi(`/repos/${cfg.repo}`);
     await ghApi(`/repos/${cfg.repo}/branches/${encodeURIComponent(cfg.branch)}`);
     if(r.permissions&&r.permissions.push===false){ n.className='note err'; n.textContent=`This token can read ${cfg.repo} but not write to it. Give it Contents: Read and write.`; return false; }
-    n.className='note ok'; n.textContent=`Connected to ${cfg.repo} (${cfg.branch}).`+(r.private?'':' This repo is public: saved drafts are readable on GitHub, though they aren’t published on your site.');
+    n.className='note ok'; n.textContent=`Connected to ${cfg.repo} (${cfg.branch}).`+(r.private?' Draft links will only open for people who can read this private repo.':' This repo is public: anyone with a draft link can view it, though drafts aren’t published on your site.');
     return true;
-  }catch(e){ n.className='note err'; const m=ghErr(e); n.textContent=m==='conflict'?'Couldn’t check that repo.':m; return false; }
+  }catch(e){ n.className='note err'; const m=ghErr(e,cfg.repo); n.textContent=m==='conflict'?'Couldn’t check that repo.':m; return false; }
   finally{ gh=prev; }
 }
 $('#ghTest').addEventListener('click',()=>testGh(readGhForm()));
-$('#ghForget').addEventListener('click',()=>{ gh.token=''; saveGh(); $('#ghToken').value=''; const n=$('#ghNote'); n.className='note'; n.textContent='Token removed from this browser.'; });
+$('#ghForget').addEventListener('click',()=>{ gh.token=''; saveGh(); $('#ghToken').value=''; syncSaveUI(); const n=$('#ghNote'); n.className='note'; n.textContent='Token removed from this browser.'; });
 $('#ghForm').addEventListener('submit',async e=>{
   e.preventDefault(); const cfg=readGhForm();
-  const moved=cfg.repo!==gh.repo||cfg.branch!==gh.branch||cfg.folder!==gh.folder;
   if(!(await testGh(cfg))) return;
-  gh=cfg; saveGh();
-  if(moved&&draft){ draft=null; savedHash=null; saveLocal(); }   // the old file link points at the previous location
-  syncSaveUI(); closeDialogs(); toast('GitHub settings saved.');
+  gh=cfg; saveGh(); syncSaveUI(); closeDialogs(); toast('GitHub settings saved.');
 });
 $('#saveBtn').addEventListener('click',()=>saveToGitHub(false));
 
@@ -1382,7 +1467,8 @@ function start(data){
   const saved=(data&&Array.isArray(data.els))?data:loadLocal();
   if(saved){ els=saved.els; if(saved.view) view=saved.view; lastSnap=JSON.stringify(els); draft=saved.draft||null; savedHash=saved.savedHash??null; }
   const fonts=document.fonts&&document.fonts.load?Promise.race([document.fonts.load('20px Kalam'),new Promise(r=>setTimeout(r,2000))]).catch(()=>{}):Promise.resolve();
-  fonts.then(()=>{ if(!saved) loadSample(); else { for(const e of els) if(e.type==='text') fitText(e); lastSnap=JSON.stringify(els); } dcache.clear(); req(); });
+  const viaLink=new URLSearchParams(location.search).has('draft');
+  fonts.then(()=>{ if(!saved&&!viaLink) loadSample(); else if(saved) { for(const e of els) if(e.type==='text') fitText(e); lastSnap=JSON.stringify(els); } dcache.clear(); req(); handleLink(); });
   syncUI(); req();
   if(window.claude&&window.claude.hot&&window.claude.hot.snapshot) try{ window.claude.hot.snapshot(()=>({els,view})); }catch(e){}
   getSample();
