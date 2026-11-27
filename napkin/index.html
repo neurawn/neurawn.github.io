@@ -377,7 +377,35 @@ function mk(type, props){
 
 /* ---------- geometry ---------- */
 function measure(text,fs){ mctx.font=`${fs}px ${HAND}`; const lines=String(text).split('\n'); let w=0; for(const l of lines) w=Math.max(w,mctx.measureText(l).width); return {w,h:lines.length*fs*1.25,lines}; }
-function fitText(el){ const m=measure(el.text||' ',el.fontSize); el.w=Math.max(8,m.w); el.h=m.h; }
+/* Text boxes have an optional fixed width (tw: text wraps inside it) and minimum height (th: extra room
+   below the text, like a fixed-size text box). Without them the box hugs the text. */
+const wrapCache=new Map();
+function wrapLines(text,fs,maxW){
+  text=String(text);
+  if(!maxW){ const out=[]; let off=0; for(const s of text.split('\n')){ out.push({s,a:off}); off+=s.length+1; } return out; }
+  const key=fs+'|'+maxW+'|'+text; const hit=wrapCache.get(key); if(hit) return hit;
+  mctx.font=`${fs}px ${HAND}`;
+  const out=[]; let off=0;
+  for(const para of text.split('\n')){
+    const n=para.length; if(!n) out.push({s:'',a:off});
+    let i=0;
+    while(i<n){
+      // greedy fill, like CSS pre-wrap: break after the last space that fits; spaces may overhang; split a word only if it can't fit alone
+      let j=i, brk=-1;
+      while(j<n){ if(para[j]!==' '&&mctx.measureText(para.slice(i,j+1)).width>maxW) break; if(para[j]===' ') brk=j+1; j++; }
+      if(j>=n){ out.push({s:para.slice(i),a:off+i}); break; }
+      const end=brk>i?brk:Math.max(j,i+1);
+      out.push({s:para.slice(i,end).replace(/ +$/,''),a:off+i}); i=end;
+    }
+    off+=n+1;
+  }
+  if(wrapCache.size>400) wrapCache.clear(); wrapCache.set(key,out); return out;
+}
+function fitText(el){
+  const lines=wrapLines(el.text||' ',el.fontSize,el.tw), lh=el.fontSize*1.25;
+  if(el.tw) el.w=el.tw; else { const m=measure(el.text||' ',el.fontSize); el.w=Math.max(8,m.w); }
+  el.h=Math.max(lines.length*lh,el.th||0);
+}
 const center = e => ({x:e.x+e.w/2,y:e.y+e.h/2});
 function edgePoint(s,tx,ty,gap=7){
   const cx=s.x+s.w/2, cy=s.y+s.h/2, hw=Math.max(1,s.w/2), hh=Math.max(1,s.h/2);
@@ -447,19 +475,18 @@ function drawablesFor(el){
 }
 /* Draws text with optional per-character colours (cc[i] = stroke name or null for the element's own colour).
    Baselines follow CSS line-box maths so the canvas text sits exactly under the editor's caret and selection. */
-function drawRich(c,text,cc,x,y,fs,align,base){
+function drawRich(c,text,cc,x,y,fs,align,base,maxW){
   text=String(text); if(cc&&cc.length!==text.length) cc=null;
+  const rows=wrapLines(text,fs,maxW);
   c.font=`${fs}px ${HAND}`; c.textAlign='left';
   const mt=c.measureText('Mg'), A=mt.fontBoundingBoxAscent, D=mt.fontBoundingBoxDescent, css=A!=null&&D!=null, lh=fs*1.25;
   c.textBaseline=css?'alphabetic':'middle';
-  let off=0;
-  text.split('\n').forEach((line,i)=>{
+  rows.forEach(({s:line,a:off},i)=>{
     const ly=css?y+i*lh+(lh-(A+D))/2+A:y+(i+.5)*lh;
     let lx=align==='center'?x-c.measureText(line).width/2:x;
     if(!cc){ c.fillStyle=base; c.fillText(line,lx,ly); }
     else { let j=0; while(j<line.length){ const k0=cc[off+j]||null; let k=j+1; while(k<line.length&&(cc[off+k]||null)===k0) k++;
       const seg=line.slice(j,k); c.fillStyle=k0?col('stroke',k0):base; c.fillText(seg,lx,ly); lx+=c.measureText(seg).width; j=k; } }
-    off+=line.length+1;
   });
 }
 function drawPen(c,el){
@@ -473,7 +500,7 @@ function drawPen(c,el){
 function drawEl(c,r,el,paper){
   if(el.type==='pen') return drawPen(c,el);
   const ink=col('stroke',el.stroke);
-  if(el.type==='text'){ drawRich(c,el.text||'',el.tc,el.x,el.y,el.fontSize,'left',ink); return; }
+  if(el.type==='text'){ drawRich(c,el.text||'',el.tc,el.x,el.y,el.fontSize,'left',ink,el.tw); return; }
   for(const d of drawablesFor(el)) r.draw(d);
   if(!el.label) return;
   const m=measure(el.label,el.fontSize);
@@ -512,7 +539,8 @@ function render(){
       if(isLinear(el)){ const p=linePts(el); ctx.setLineDash([4/z,4/z]); const b=bounds(el); ctx.strokeRect(b.x-6/z,b.y-6/z,b.w+12/z,b.h+12/z); ctx.setLineDash([]);
         ctx.fillStyle=cssv('--chrome'); ctx.lineWidth=1.5/z; for(const q of [p[0],p[p.length-1]]){ ctx.beginPath(); ctx.arc(q[0],q[1],5.5/z,0,7); ctx.fill(); ctx.stroke(); } }
       else { const b=bounds(el), pad=6/z; ctx.setLineDash([4/z,4/z]); ctx.strokeRect(b.x-pad,b.y-pad,b.w+pad*2,b.h+pad*2); ctx.setLineDash([]);
-        ctx.fillStyle=cssv('--chrome'); ctx.lineWidth=1.5/z; const hs=9/z; for(const [x,y] of corners(b,pad)){ ctx.fillRect(x-hs/2,y-hs/2,hs,hs); ctx.strokeRect(x-hs/2,y-hs/2,hs,hs); } }
+        ctx.fillStyle=cssv('--chrome'); ctx.lineWidth=1.5/z; const hs=9/z; for(const [x,y] of corners(b,pad)){ ctx.fillRect(x-hs/2,y-hs/2,hs,hs); ctx.strokeRect(x-hs/2,y-hs/2,hs,hs); }
+        if(el.type==='text') for(const [k,x,y] of edgeHandles(b,pad)){ const lw=(k==='n'||k==='s'?14:5)/z, lh2=(k==='n'||k==='s'?5:14)/z; ctx.beginPath(); ctx.roundRect?ctx.roundRect(x-lw/2,y-lh2/2,lw,lh2,2.5/z):ctx.rect(x-lw/2,y-lh2/2,lw,lh2); ctx.fill(); ctx.stroke(); } }
     } else {
       ctx.globalAlpha=.5; ctx.setLineDash([3/z,3/z]); for(const el of S){ const b=bounds(el); ctx.strokeRect(b.x-3/z,b.y-3/z,b.w+6/z,b.h+6/z); }
       ctx.globalAlpha=1; ctx.setLineDash([6/z,4/z]); const u=unionB(S); ctx.strokeRect(u.x-8/z,u.y-8/z,u.w+16/z,u.h+16/z); ctx.setLineDash([]);
@@ -585,7 +613,11 @@ function openEditor(el){
 function packColors(arr){ return arr.some(Boolean)?arr:undefined; }
 function layoutEditor(){
   if(!editing) return; const el=editing, z=view.z, isText=el.type==='text';
-  const m=measure(ed.value||' ',el.fontSize); const w=(Math.max(m.w,isText?20:40)+8)*z, h=m.h*z;
+  const m=measure(ed.value||' ',el.fontSize);
+  let w=(Math.max(m.w,isText?20:40)+8)*z, h=m.h*z;
+  // fixed-width text boxes wrap in the editor exactly where the canvas wraps them
+  const wrap=isText&&!!el.tw; ed.style.whiteSpace=wrap?'pre-wrap':'pre'; ed.style.overflowWrap=wrap?'break-word':'normal';
+  if(isText){ if(wrap) w=el.tw*z+2; h=Math.max(wrapLines(ed.value||' ',el.fontSize,el.tw).length*el.fontSize*1.25,el.th||0)*z; }
   let x,y;
   if(isText){ x=el.x*z+view.x; y=el.y*z+view.y; }
   else { const c=isLinear(el)?polyMid(linePts(el)):[el.x+el.w/2,el.y+el.h/2]; x=c[0]*z+view.x-w/2; y=c[1]*z+view.y-h/2; }
@@ -615,7 +647,7 @@ function closeEditor(){
   if(el.type==='text'){ if(!v.trim()) deleteIds([el.id]); else { el.text=v; el.tc=cc; fitText(el); } }
   else { el.label=v; el.lc=cc; growToLabel(el); }
   if(el[f.ck]===undefined) delete el[f.ck];
-  edColors=[]; commit();
+  edColors=[]; commit(); syncProps();   // commit() skips the panel refresh when nothing changed
 }
 
 /* ---------- pointer interaction ---------- */
@@ -626,8 +658,12 @@ function handleAt(p){
   const S=selected(); if(S.length!==1) return null; const el=S[0], z=view.z;
   if(isLinear(el)){ const q=linePts(el); if(Math.hypot(p.x-q[0][0],p.y-q[0][1])<9/z) return 'p0'; if(Math.hypot(p.x-q[q.length-1][0],p.y-q[q.length-1][1])<9/z) return 'pN'; return null; }
   const cs=corners(bounds(el),6/z); for(let i=0;i<4;i++) if(Math.hypot(p.x-cs[i][0],p.y-cs[i][1])<9/z) return i;
+  if(el.type==='text') for(const [k,x,y] of edgeHandles(bounds(el),6/z)) if(Math.abs(p.x-x)<8/z&&Math.abs(p.y-y)<8/z) return k;
   return null;
 }
+// mid-edge handles on text: e/w set the wrap width, n/s set the box height
+function edgeHandles(b,pad){ const x0=b.x-pad,x1=b.x+b.w+pad,y0=b.y-pad,y1=b.y+b.h+pad,cx=(x0+x1)/2,cy=(y0+y1)/2; return [['n',cx,y0],['e',x1,cy],['s',cx,y1],['w',x0,cy]]; }
+const EDGE_CURSOR={n:'ns-resize',s:'ns-resize',e:'ew-resize',w:'ew-resize'};
 canvas.addEventListener('pointerdown',e=>{
   if(editing) ed.blur();
   closeMenu(); canvas.setPointerCapture(e.pointerId);
@@ -664,7 +700,7 @@ canvas.addEventListener('pointermove',e=>{
   mouse={x:e.clientX,y:e.clientY};
   if(pointers.has(e.pointerId)) pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   const p=toScene(e.clientX,e.clientY);
-  if(!act){ if(tool==='select'&&!spaceDown){ const h=handleAt(p); if(h===0||h===2) setCursor('nwse-resize'); else if(h===1||h===3) setCursor('nesw-resize'); else if(h) setCursor('move'); else setCursor(hitTop(p.x,p.y)?'move':null); } return; }
+  if(!act){ if(tool==='select'&&!spaceDown){ const h=handleAt(p); if(h===0||h===2) setCursor('nwse-resize'); else if(h===1||h===3) setCursor('nesw-resize'); else if(EDGE_CURSOR[h]) setCursor(EDGE_CURSOR[h]); else if(h) setCursor('move'); else setCursor(hitTop(p.x,p.y)?'move':null); } return; }
   switch(act.kind){
     case 'pinch':{ if(pointers.size<2) return; const [a,b]=[...pointers.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y), m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
       view.x+=m.x-act.m.x; view.y+=m.y-act.m.y; zoomAt(d/act.d,m.x,m.y); act.d=d; act.m=m; break; }
@@ -683,10 +719,17 @@ canvas.addEventListener('pointermove',e=>{
           for(const end of ['start','end']) if(el[end]&&!sel.has(el[end])){ detach(el,end); o.points=clone(el.points); o[end]=null; } } }
       for(const el of selected()){ const o=act.orig.get(el.id); if(!o) continue; if(el.points) el.points=o.points.map(q=>[q[0]+dx,q[1]+dy]); else { el.x=o.x+dx; el.y=o.y+dy; } }
       break; }
-    case 'resize':{ const el=byId(act.id), ob=act.ob, o=act.orig; const fx=act.h===0||act.h===3?ob.x+ob.w:ob.x, fy=act.h<2?ob.y+ob.h:ob.y;
+    case 'resize':{ const el=byId(act.id), ob=act.ob, o=act.orig;
+      if(typeof act.h==='string'){   // text edge handle: one axis only, font size unchanged
+        if(act.h==='e'||act.h==='w'){ const fx=act.h==='e'?ob.x:ob.x+ob.w; const nw=Math.max(el.fontSize*1.2,act.h==='e'?p.x-fx:fx-p.x);
+          el.tw=nw; fitText(el); el.x=act.h==='e'?fx:fx-nw; }
+        else { const fy=act.h==='s'?ob.y:ob.y+ob.h; el.th=undefined; fitText(el); const content=el.h; const nh=act.h==='s'?p.y-fy:fy-p.y;
+          if(nh>content+1) el.th=nh; else delete el.th; fitText(el); el.y=act.h==='s'?fy:fy-el.h; }
+        break; }
+      const fx=act.h===0||act.h===3?ob.x+ob.w:ob.x, fy=act.h<2?ob.y+ob.h:ob.y;
       let w=p.x-fx, h=p.y-fy; if(e.shiftKey||el.type==='text'){ const r=ob.w/Math.max(ob.h,1); if(Math.abs(w)/r>Math.abs(h)) h=Math.sign(h||1)*Math.abs(w)/r; else w=Math.sign(w||1)*Math.abs(h)*r; }
       const nx=Math.min(fx,fx+w), ny=Math.min(fy,fy+h), nw=Math.max(4,Math.abs(w)), nh=Math.max(4,Math.abs(h));
-      if(el.type==='text'){ el.fontSize=Math.max(8,o.fontSize*nh/Math.max(ob.h,1)); fitText(el); el.x=w<0?fx-el.w:fx; el.y=h<0?fy-el.h:fy; }
+      if(el.type==='text'){ el.fontSize=Math.max(8,o.fontSize*nh/Math.max(ob.h,1)); const k=el.fontSize/o.fontSize; if(o.tw) el.tw=o.tw*k; if(o.th) el.th=o.th*k; fitText(el); el.x=w<0?fx-el.w:fx; el.y=h<0?fy-el.h:fy; }
       else if(el.type==='pen'){ el.points=o.points.map(([x,y])=>[nx+(x-ob.x)*nw/Math.max(ob.w,1), ny+(y-ob.y)*nh/Math.max(ob.h,1)]); }
       else { el.x=nx; el.y=ny; el.w=nw; el.h=nh; }
       break; }
