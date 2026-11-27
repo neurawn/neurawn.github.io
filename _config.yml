@@ -132,6 +132,7 @@ exclude:
   - CHANGELOG
   - Capfile
   - dashboard-data
+  - napkin-drafts
   - Gemfile
   - Gruntfile.js
   - LICENSE
