@@ -8,7 +8,8 @@ redirect_from:
   - /about.html
 ---
 
-Ever since I was a kid, I've always wanted to figure out the brain before Claude gets to it. Not anymore. So here is every single equation leading up to that dream.
+Ever since I was a kid, I've always wanted to figure out how the brain works before Claude gets to it.<br>
+Not anymore. So here is every single equation leading up to that dream.
 
 ---
 
