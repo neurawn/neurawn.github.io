@@ -13,5 +13,8 @@ main:
   - title: "Notes"
     url: /notes/
 
+  - title: "Napkin"
+    url: /napkin/
+
   - title: "Dashboard"
     url: /private/dashboard/
