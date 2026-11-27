@@ -8,9 +8,7 @@ redirect_from:
   - /about.html
 ---
 
-Hi! This is where I store my notes so I can go back and review them every so often. I try to derive every equation from the ground up without assuming extensive knowledge.
-
-This is also where you would see my Prefrontal Cortex and Hippocampus laid out in writing form - how the brain stores and replays memories, how we understand things, how we learn from past experiences. Additionally maybe some off topic rambling - free will, running, intersection between LetsRun and LessWrong; this site is a place to collect projects, occasional writing, and whatever I feel like putting on the internet.
+Ever since I was a kid, I've always wanted to figure out the brain before Claude gets to it. Not anymore. So here is every single equation leading up to that dream.
 
 ---
 
